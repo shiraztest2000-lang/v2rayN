@@ -1,4 +1,4 @@
-name: release all platforms
+name: release Windows and WebAPI
 
 on:
   workflow_dispatch:
