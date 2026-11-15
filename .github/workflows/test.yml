@@ -8,10 +8,11 @@ on:
       - 'v2rayN/ServiceLib/**'
       - 'v2rayN/ServiceLib.UdpTest/**'
       - 'v2rayN/ServiceLib.Tests/**'
+      - 'v2rayN/v2rayN.slnx'
+      - 'v2rayN/v2rayN.WebAPI/**'
       - 'v2rayN/Directory.Build.*'
       - 'v2rayN/Directory.Packages.props'
       - 'global.json'
-      - '.github/workflows/test.yml'
   pull_request:
     branches:
       - master
@@ -43,6 +44,9 @@ jobs:
 
     - name: Test Code
       run: dotnet test --project ./v2rayN/ServiceLib.Tests -c Release --results-directory ./TestResults -- --report-trx
+
+    - name: Test WebAPI
+      run: dotnet test --project ./v2rayN/v2rayN.WebAPI/Tests/v2rayN.WebAPI.Tests.csproj -c Release --results-directory ./TestResults -- --report-trx
 
     - name: Comment PR with results
       if: always()
