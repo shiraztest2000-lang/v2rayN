@@ -14,13 +14,17 @@ on:
         required: false
         type: boolean
         default: false
+      architectures:
+        required: false
+        type: string
+        default: '["x64","arm64"]'
 
 jobs:
   build:
     name: build x64 arm64
     strategy:
       matrix:
-        arch: [ x64, arm64 ]
+        arch: ${{ fromJSON(inputs.architectures) }}
     runs-on: |-
       ${{
         case(
