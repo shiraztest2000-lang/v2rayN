@@ -13,6 +13,14 @@ on:
         required: false
         type: boolean
         default: false
+      architectures:
+        required: false
+        type: string
+        default: '["x64","arm64"]'
+      sign:
+        required: false
+        type: boolean
+        default: true
     secrets:
       GPG_PRIVATE_KEY:
         required: true
@@ -26,7 +34,7 @@ jobs:
     name: package x64 arm64
     strategy:
       matrix:
-        arch: [ x64, arm64 ]
+        arch: ${{ fromJSON(inputs.architectures) }}
     runs-on: ubuntu-latest
     env:
       Target: |- 
@@ -110,11 +118,12 @@ jobs:
     needs: package
     strategy:
       matrix:
-        arch: [ x64, arm64 ]
+        arch: ${{ fromJSON(inputs.architectures) }}
     uses: ./.github/workflows/upload-sign.yml
     with:
       release_tag: ${{ inputs.release_tag }}
       artifact_name: release-${{ inputs.target }}-${{ matrix.arch }}${{ inputs.isAot && '-aot' || '' }}
       file_pattern: '*.zip'
+      sign: ${{ inputs.sign }}
     secrets:
       GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
