@@ -606,7 +606,7 @@ function Invoke-UpdateScenario([bool]$ExpectRollback) {
         }
         Write-Output ("Windows update validation inputs: plan={0}; candidateIdentity={1}; processArchitecture={2}; runtimeIdentifier={3}; DOTNET_RUNNING_IN_CONTAINER={4}; container={5}" -f
             (Get-Content -LiteralPath $planPath -Raw),
-            (Get-Content -LiteralPath $candidateIdentityPath -Raw),
+            (Get-Content -LiteralPath (Join-Path $candidate 'v2rayN.WebAPI.build.json') -Raw),
             [Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture,
             [Runtime.InteropServices.RuntimeInformation]::RuntimeIdentifier,
             [Environment]::GetEnvironmentVariable('DOTNET_RUNNING_IN_CONTAINER'),
