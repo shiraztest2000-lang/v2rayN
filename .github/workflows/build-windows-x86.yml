@@ -146,10 +146,25 @@ jobs:
           $xrayTag = "v$xrayVer"
           $singTag = "v$singVer"
 
-          $xrayUrl = "https://github.com/XTLS/Xray-core/releases/download/$xrayTag/Xray-windows-32.zip"
+          # Prefer the exact bundled Xray version. Some core-bin builds may
+          # report a version that has no matching upstream Xray release tag.
+          $xrayRelease = $null
+          try {
+            $xrayRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/XTLS/Xray-core/releases/tags/$xrayTag" -Headers $headers
+          } catch {
+            Write-Warning "Official Xray release $xrayTag was not found; falling back to the latest official release."
+            $xrayRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/XTLS/Xray-core/releases/latest" -Headers $headers
+          }
+
+          $xrayAsset = $xrayRelease.assets | Where-Object { $_.name -eq "Xray-windows-32.zip" } | Select-Object -First 1
+          if (-not $xrayAsset) {
+            throw "Xray-windows-32.zip is missing from official Xray release $($xrayRelease.tag_name)"
+          }
+          $xrayUrl = $xrayAsset.browser_download_url
           $singUrl = "https://github.com/SagerNet/sing-box/releases/download/$singTag/sing-box-$singVer-windows-386.zip"
 
           Write-Host "Bundled Xray version: $xrayVer"
+          Write-Host "Selected official Xray release: $($xrayRelease.tag_name)"
           Write-Host "Bundled sing-box version: $singVer"
           Write-Host "Xray: $xrayUrl"
           Write-Host "sing-box: $singUrl"
