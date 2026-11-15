@@ -77,3 +77,26 @@ jobs:
     uses: ./.github/workflows/build-windows-x86.yml
     with:
       release_tag: ${{ needs.validate-release.outputs.release_tag }}
+
+  verify-release-assets:
+    name: Verify release contains only Windows x64 and x86 packages
+    needs: [validate-release, windows-x64, windows-x86]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assert exact release asset set
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          RELEASE_TAG: ${{ needs.validate-release.outputs.release_tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(gh release view "$RELEASE_TAG" --repo "$REPOSITORY" --json assets --jq '[.assets[].name] | sort | join(",")')"
+          expected="v2rayN-windows-64.zip,v2rayN-windows-86.zip"
+          if [[ "$actual" != "$expected" ]]; then
+            echo "Unexpected release assets."
+            echo "Expected: $expected"
+            echo "Actual:   $actual"
+            exit 1
+          fi
+          echo "Release contains exactly the Windows x64 and x86 ZIP packages."
