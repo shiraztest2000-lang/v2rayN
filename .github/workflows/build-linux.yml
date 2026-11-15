@@ -9,6 +9,16 @@ on:
   push:
     branches:
       - master
+    paths:
+      - '.github/workflows/build-linux.yml'
+      - '.github/workflows/build.yml'
+      - '.github/workflows/package-zip.yml'
+      - '.github/workflows/upload-sign.yml'
+      - 'package-debian*.sh'
+      - 'package-rhel*.sh'
+      - 'v2rayN/**'
+      - 'global.json'
+      - '.gitmodules'
 
 permissions:
   contents: write
