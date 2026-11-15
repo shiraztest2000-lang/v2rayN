@@ -604,6 +604,13 @@ function Invoke-UpdateScenario([bool]$ExpectRollback) {
             progressPath = $progressPath
             coreWasRunning = $false
         }
+        Write-Output ("Windows update validation inputs: plan={0}; candidateIdentity={1}; processArchitecture={2}; runtimeIdentifier={3}; DOTNET_RUNNING_IN_CONTAINER={4}; container={5}" -f
+            (Get-Content -LiteralPath $planPath -Raw),
+            (Get-Content -LiteralPath $candidateIdentityPath -Raw),
+            [Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture,
+            [Runtime.InteropServices.RuntimeInformation]::RuntimeIdentifier,
+            [Environment]::GetEnvironmentVariable('DOTNET_RUNNING_IN_CONTAINER'),
+            [Environment]::GetEnvironmentVariable('container'))
 
         $helperPath = Join-Path $install ('.v2rayn-WebAPI-update-helper-' + [Guid]::NewGuid().ToString('N') + '.exe')
         Copy-Item -LiteralPath (Join-Path $install $executableName) -Destination $helperPath
