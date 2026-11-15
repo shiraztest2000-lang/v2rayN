@@ -1,9 +1,32 @@
+using System.Runtime.InteropServices;
 using v2rayN.WebAPI.Launcher;
 
 namespace v2rayN.WebAPI.Tests;
 
 public class NativeWebUpdateHelperTests
 {
+    [Test]
+    public async Task WindowsReleaseRidMatchesTheRunningProcessArchitecture()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        var expectedRid = RuntimeInformation.ProcessArchitecture switch
+        {
+            Architecture.X64 => "win-x64",
+            Architecture.Arm64 => "win-arm64",
+            _ => string.Empty,
+        };
+
+        await expectedRid.Should().NotBeEmpty();
+        await NativeWebUpdateHelper.IsCurrentRuntimeRid(expectedRid).Should().BeTrue();
+        await NativeWebUpdateHelper.IsCurrentRuntimeRid(
+            expectedRid == "win-x64" ? "win-arm64" : "win-x64").Should().BeFalse();
+        await NativeWebUpdateHelper.IsCurrentRuntimeRid("win-x86").Should().BeFalse();
+    }
+
     [Test]
     public async Task TransientFileOperationFailuresAreRetriedBeforeTheUpdateGivesUp()
     {
