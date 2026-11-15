@@ -6,22 +6,6 @@ on:
       release_tag:
         required: false
         type: string
-  push:
-    branches:
-      - master
-    paths:
-      - '.github/workflows/build-windows-desktop.yml'
-      - '.github/workflows/build.yml'
-      - '.github/workflows/package-zip.yml'
-      - '.github/workflows/upload-sign.yml'
-      - 'v2rayN/**'
-      - '!v2rayN/ServiceLib/Handler/SysProxy/ProxySettingLinux.cs'
-      - '!v2rayN/ServiceLib/Sample/*linux*'
-      - '!v2rayN/ServiceLib/Handler/SysProxy/ProxySettingOSX.cs'
-      - '!v2rayN/ServiceLib/Sample/*osx*'
-      - '!package-osx.sh'
-      - 'global.json'
-      - '.gitmodules'
 
 permissions:
   contents: write
