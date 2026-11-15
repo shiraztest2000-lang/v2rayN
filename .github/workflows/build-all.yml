@@ -149,7 +149,5 @@ jobs:
         run: |
           set -euo pipefail
           gh workflow run build-windows.yml --ref master -f "release_tag=$RELEASE_TAG"
-          gh workflow run build-linux.yml --ref master -f "release_tag=$RELEASE_TAG"
-          gh workflow run build-osx.yml --ref master -f "release_tag=$RELEASE_TAG"
           gh workflow run build-windows-desktop.yml --ref master -f "release_tag=$RELEASE_TAG"
           gh workflow run build-windows-x86.yml --ref master -f "release_tag=$RELEASE_TAG"
