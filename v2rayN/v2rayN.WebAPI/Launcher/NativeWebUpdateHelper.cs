@@ -404,19 +404,27 @@ internal static class NativeWebUpdateHelper
         var isLinux = OperatingSystem.IsLinux();
         var isWindows = OperatingSystem.IsWindows();
         var isManagedLinuxService = isLinux && LauncherEnvironment.IsSystemdManagedDeployment();
-        if ((!isLinux && !isWindows) || plan is null
-            || File.Exists("/.dockerenv") || File.Exists("/run/.containerenv")
-            || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("container"))
-            || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"))
-            || isManagedLinuxService
-            || !WebUpdatePackageStager.IsValidVersion(plan.ExpectedVersion)
-            || !WebUpdatePackageStager.IsValidVersion(plan.PreviousVersion)
-            || !WebUpdatePackageStager.IsSupportedRid(plan.Rid)
-            || !IsCurrentRuntimeRid(plan.Rid)
-            || string.IsNullOrWhiteSpace(plan.ExpectedCommit)
-            || !WebProbeUriResolver.IsProbeableLoopbackUri(plan.HealthUri))
+        if (plan is null)
         {
-            throw new InvalidDataException("The update plan has an unsupported target or identity.");
+            throw new InvalidDataException("The update plan is empty or could not be deserialized.");
+        }
+
+        var rejected = new List<string>();
+        if (!isLinux && !isWindows) rejected.Add("unsupported operating system");
+        if (File.Exists("/.dockerenv")) rejected.Add("Docker container marker is present");
+        if (File.Exists("/run/.containerenv")) rejected.Add("container environment marker is present");
+        if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("container"))) rejected.Add("container environment variable is set");
+        if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"))) rejected.Add("DOTNET_RUNNING_IN_CONTAINER is set");
+        if (isManagedLinuxService) rejected.Add("systemd-managed Linux deployment");
+        if (!WebUpdatePackageStager.IsValidVersion(plan.ExpectedVersion)) rejected.Add($"invalid expected version '{plan.ExpectedVersion}'");
+        if (!WebUpdatePackageStager.IsValidVersion(plan.PreviousVersion)) rejected.Add($"invalid previous version '{plan.PreviousVersion}'");
+        if (!WebUpdatePackageStager.IsSupportedRid(plan.Rid)) rejected.Add($"unsupported RID '{plan.Rid}'");
+        else if (!IsCurrentRuntimeRid(plan.Rid)) rejected.Add($"RID '{plan.Rid}' does not match process architecture/runtime '{RuntimeInformation.ProcessArchitecture}/{RuntimeInformation.RuntimeIdentifier}'");
+        if (string.IsNullOrWhiteSpace(plan.ExpectedCommit)) rejected.Add("expected commit is empty");
+        if (!WebProbeUriResolver.IsProbeableLoopbackUri(plan.HealthUri)) rejected.Add($"health URI is not a probeable loopback URI ('{plan.HealthUri}')");
+        if (rejected.Count > 0)
+        {
+            throw new InvalidDataException("The update plan was rejected: " + string.Join("; ", rejected) + ".");
         }
 
         var executable = Environment.ProcessPath
