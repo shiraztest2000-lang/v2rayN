@@ -254,7 +254,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        flavor: [ wpf, desktop ]
+        flavor: [ wpf ]
     uses: ./.github/workflows/upload-sign.yml
     with:
       release_tag: ${{ inputs.release_tag }}
