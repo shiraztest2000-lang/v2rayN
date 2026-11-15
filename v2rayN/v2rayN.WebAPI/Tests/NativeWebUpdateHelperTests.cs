@@ -20,7 +20,7 @@ public class NativeWebUpdateHelperTests
             _ => string.Empty,
         };
 
-        await expectedRid.Should().NotBeEmpty();
+        await (expectedRid.Length > 0).Should().BeTrue();
         await NativeWebUpdateHelper.IsCurrentRuntimeRid(expectedRid).Should().BeTrue();
         await NativeWebUpdateHelper.IsCurrentRuntimeRid(
             expectedRid == "win-x64" ? "win-arm64" : "win-x64").Should().BeFalse();
