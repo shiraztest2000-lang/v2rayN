@@ -381,6 +381,24 @@ internal static class NativeWebUpdateHelper
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern bool MoveFileEx(string existingFileName, string? newFileName, int flags);
 
+    internal static bool IsCurrentRuntimeRid(string rid)
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            return rid switch
+            {
+                "win-x64" => RuntimeInformation.ProcessArchitecture == Architecture.X64,
+                "win-arm64" => RuntimeInformation.ProcessArchitecture == Architecture.Arm64,
+                _ => false,
+            };
+        }
+
+        // Linux publishes use the canonical RIDs and must continue to match the
+        // runtime's libc/architecture identity exactly (including musl distinction).
+        return OperatingSystem.IsLinux()
+            && string.Equals(rid, RuntimeInformation.RuntimeIdentifier, StringComparison.Ordinal);
+    }
+
     private static void ValidatePlan(NativeWebUpdatePlan? plan)
     {
         var isLinux = OperatingSystem.IsLinux();
@@ -394,7 +412,7 @@ internal static class NativeWebUpdateHelper
             || !WebUpdatePackageStager.IsValidVersion(plan.ExpectedVersion)
             || !WebUpdatePackageStager.IsValidVersion(plan.PreviousVersion)
             || !WebUpdatePackageStager.IsSupportedRid(plan.Rid)
-            || plan.Rid != System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier
+            || !IsCurrentRuntimeRid(plan.Rid)
             || string.IsNullOrWhiteSpace(plan.ExpectedCommit)
             || !WebProbeUriResolver.IsProbeableLoopbackUri(plan.HealthUri))
         {
