@@ -106,6 +106,10 @@ jobs:
     if: needs.validate-release.outputs.release == 'true'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Trigger platform release workflows
         env:
           GH_TOKEN: ${{ github.token }}
