@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   package-x86:
-    name: build and release windows x86 WPF & Avalonia
+    name: build and release Windows x86 WPF only
     if: inputs.release_tag != ''
     runs-on: windows-latest
 
@@ -29,9 +29,6 @@ jobs:
           - flavor: wpf
             project: ./v2rayN/v2rayN/v2rayN.csproj
             zip_name: v2rayN-windows-86.zip
-          - flavor: desktop
-            project: ./v2rayN/v2rayN.Desktop/v2rayN.Desktop.csproj
-            zip_name: v2rayN-windows-86-desktop.zip
 
     steps:
       - name: Checkout
@@ -263,5 +260,4 @@ jobs:
       release_tag: ${{ inputs.release_tag }}
       artifact_name: release-windows-x86-${{ matrix.flavor }}
       file_pattern: '*.zip'
-    secrets:
-      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+      sign: false
