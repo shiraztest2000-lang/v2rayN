@@ -66,13 +66,13 @@ jobs:
     steps:
       - name: Remove every old release and tag, keeping only this version
         env:
-          GH_TOKEN: \${{ github.token }}
-          REPOSITORY: \${{ github.repository }}
-          KEEP_TAG: \${{ needs.validate-release.outputs.release_tag }}
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          KEEP_TAG: ${{ needs.validate-release.outputs.release_tag }}
         shell: bash
         run: |
           set -euo pipefail
-          while IFS=$'\t' read -r release_id tag_name; do
+          while IFS=$'\\t' read -r release_id tag_name; do
             [[ -n "$release_id" && -n "$tag_name" ]] || continue
             if [[ "$tag_name" != "$KEEP_TAG" ]]; then
               echo "Deleting old release: $tag_name"
@@ -82,7 +82,7 @@ jobs:
 
           while IFS= read -r ref; do
             [[ -n "$ref" ]] || continue
-            tag_name="\${ref#refs/tags/}"
+            tag_name="${ref#refs/tags/}"
             if [[ "$tag_name" != "$KEEP_TAG" ]]; then
               echo "Deleting extra tag: $tag_name"
               gh api --method DELETE "repos/$REPOSITORY/git/refs/tags/$tag_name"
