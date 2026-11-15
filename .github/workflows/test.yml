@@ -20,10 +20,11 @@ on:
       - 'v2rayN/ServiceLib/**'
       - 'v2rayN/ServiceLib.UdpTest/**'
       - 'v2rayN/ServiceLib.Tests/**'
+      - 'v2rayN/v2rayN.WebAPI/**'
+      - 'v2rayN/v2rayN.slnx'
       - 'v2rayN/Directory.Build.*'
       - 'v2rayN/Directory.Packages.props'
       - 'global.json'
-      - '.github/workflows/test.yml'
 
 permissions:
   checks: write
