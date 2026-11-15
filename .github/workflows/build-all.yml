@@ -58,9 +58,100 @@ jobs:
           echo "release=true" >> "$GITHUB_OUTPUT"
           echo "Resolved release version: $release_tag"
 
+  cleanup-old-releases:
+    name: Remove previous releases and extra tags
+    needs: validate-release
+    if: needs.validate-release.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove every old release and tag, keeping only this version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          KEEP_TAG: ${{ needs.validate-release.outputs.release_tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS=    if: needs.validate-release.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create the release/tag idempotently
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.validate-release.outputs.release_tag }}
+          REPOSITORY: ${{ github.repository }}
+          TARGET_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" --repo "$REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $RELEASE_TAG already exists; keeping its existing tag and assets."
+          else
+            gh release create "$RELEASE_TAG" \
+              --repo "$REPOSITORY" \
+              --target "$TARGET_SHA" \
+              --title "v2rayN $RELEASE_TAG" \
+              --notes "Automated multi-platform release $RELEASE_TAG." \
+              --prerelease
+          fi
+
+  public-key:
+    needs: [validate-release, create-release]
+    if: needs.validate-release.outputs.release == 'true'
+    uses: ./.github/workflows/pub-key.yml
+    with:
+      release_tag: ${{ needs.validate-release.outputs.release_tag }}
+    secrets:
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+
+  release-WebAPI:
+    needs: [validate-release, create-release]
+    if: needs.validate-release.outputs.release == 'true'
+    uses: ./.github/workflows/release-WebAPI.yml
+    with:
+      release_tag: ${{ needs.validate-release.outputs.release_tag }}
+    secrets: inherit
+
+  update:
+    needs: [validate-release, create-release]
+    if: needs.validate-release.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Trigger platform release workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.validate-release.outputs.release_tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh workflow run build-windows.yml --ref master -f "release_tag=$RELEASE_TAG"
+          gh workflow run build-linux.yml --ref master -f "release_tag=$RELEASE_TAG"
+          gh workflow run build-osx.yml --ref master -f "release_tag=$RELEASE_TAG"
+          gh workflow run build-windows-desktop.yml --ref master -f "release_tag=$RELEASE_TAG"
+          gh workflow run build-windows-x86.yml --ref master -f "release_tag=$RELEASE_TAG"
+\\t' read -r release_id tag_name; do
+            [[ -n "$release_id" && -n "$tag_name" ]] || continue
+            if [[ "$tag_name" != "$KEEP_TAG" ]]; then
+              echo "Deleting old release: $tag_name"
+              gh api --method DELETE "repos/$REPOSITORY/releases/$release_id"
+            fi
+          done < <(gh api --paginate "repos/$REPOSITORY/releases" --jq '.[] | [.id, .tag_name] | @tsv')
+
+          while IFS= read -r ref; do
+            [[ -n "$ref" ]] || continue
+            tag_name="${ref#refs/tags/}"
+            if [[ "$tag_name" != "$KEEP_TAG" ]]; then
+              echo "Deleting extra tag: $tag_name"
+              gh api --method DELETE "repos/$REPOSITORY/git/refs/tags/$tag_name"
+            fi
+          done < <(gh api "repos/$REPOSITORY/git/matching-refs/tags/" --jq '.[].ref')
   create-release:
     name: Create tag and GitHub release if missing
-    needs: validate-release
+    needs: [validate-release, cleanup-old-releases]
     if: needs.validate-release.outputs.release == 'true'
     runs-on: ubuntu-latest
     steps:
