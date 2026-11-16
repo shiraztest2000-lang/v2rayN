@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="SHZ v2rayN" width="180">
+</p>
+
 # SHZ v2rayN
 
 **A Windows-focused fork of [v2rayN](https://github.com/2dust/v2rayN), maintained by [@shiraztest2000-lang](https://github.com/shiraztest2000-lang).**
