@@ -38,6 +38,7 @@ jobs:
         shell: bash
         env:
           INPUT_TAG: ${{ inputs.release_tag }}
+          HEAD_MESSAGE: ${{ github.event.head_commit.message }}
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           REPOSITORY: ${{ github.repository }}
         run: |
