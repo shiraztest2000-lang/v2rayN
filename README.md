@@ -1,80 +1,163 @@
-# v2rayN
+# SHZ v2rayN
 
-### A GUI client for Windows, Linux and macOS. Support [Xray](https://github.com/XTLS/Xray-core) and [sing-box](https://github.com/SagerNet/sing-box) and [others](https://github.com/2dust/v2rayN/wiki/List-of-supported-cores)
+**A Windows-focused fork of [v2rayN](https://github.com/2dust/v2rayN), maintained by [@shiraztest2000-lang](https://github.com/shiraztest2000-lang).**
 
-[![CodeFactor](https://www.codefactor.io/repository/github/2dust/v2rayn/badge)](https://www.codefactor.io/repository/github/2dust/v2rayn)
-[![Release](https://img.shields.io/github/v/release/2dust/v2rayN?logo=github&label=Release)](https://github.com/2dust/v2rayN/releases)
-[![Downloads](https://img.shields.io/github/downloads/2dust/v2rayN/latest/total?logo=github&label=Downloads)](https://github.com/2dust/v2rayN/releases)
-[![Telegram](https://img.shields.io/badge/Telegram-Chat-26A5E4?logo=telegram)](https://t.me/v2rayn)
- 
-[![Windows](https://img.shields.io/badge/Windows-supported-0078D6?logo=windows)](https://github.com/2dust/v2rayN) 
-[![Linux](https://img.shields.io/badge/Linux-supported-FCC624?logo=linux&logoColor=000)](https://github.com/2dust/v2rayN) 
-[![macOS](https://img.shields.io/badge/macOS-supported-000000?logo=apple)](https://github.com/2dust/v2rayN) 
-[![GPG Signed](https://img.shields.io/badge/GPG-signed-4B32C3?logo=gnuprivacyguard)](https://github.com/2dust/v2rayN)
+**فورک ویندوزی v2rayN** با تغییرات اختصاصی، نگهداری‌شده در حساب [@shiraztest2000-lang](https://github.com/shiraztest2000-lang).
 
+[English](#english) · [فارسی](#فارسی)
 
 ---
 
-## Download / 下载
+## English
 
-Download the latest release here:
+### About
 
-在这里下载最新版本：
+SHZ v2rayN is a customized fork of the open-source v2rayN client. It keeps the upstream application's core functionality while maintaining fork-specific changes and a Windows-only release pipeline.
 
-[https://github.com/2dust/v2rayN/releases](https://github.com/2dust/v2rayN/releases)
+- **Repository:** https://github.com/shiraztest2000-lang/v2rayN
+- **Latest published version:** `7.25.6.006` (Pre-release)
+- **Supported release platforms:** Windows x64 and Windows x86 (32-bit)
+- **License:** GPL-3.0
 
+This repository is a fork of [2dust/v2rayN](https://github.com/2dust/v2rayN). It is not the official upstream project.
 
-> [!TIP]
-> v2rayN is the desktop version. For the mobile version, please visit the v2rayNG \
-> v2rayN 是电脑版，手机版请访问 v2rayNG
->
-> https://github.com/2dust/v2rayNG
+### Fork-specific changes
+
+#### 1. Xray TLS — Allow Insecure option
+
+- Restores a functional per-profile **Allow Insecure** setting for Xray TLS configurations.
+- When enabled for a profile, the generated Xray configuration includes the corresponding `allowInsecure` option.
+- The option is omitted when disabled; the default behavior remains certificate verification.
+- This fork-specific handling applies to **Xray** configurations. It does not change sing-box behavior.
+
+**Security warning:** Enabling Allow Insecure disables normal TLS certificate verification for that connection and can expose the connection to man-in-the-middle attacks. Keep it disabled unless you understand and specifically need this behavior.
+
+#### 2. Windows-only release packages
+
+- Release workflow builds **Windows x64** and **Windows x86** packages.
+- Each release is checked to contain exactly these two ZIP files:
+  - `v2rayN-windows-64.zip`
+  - `v2rayN-windows-86.zip`
+- Linux and macOS client packages are not produced by this fork's release workflow.
+- Release version input is validated against the project version before publishing.
+
+### Download
+
+Get the latest release and its files from this fork:
+
+**[SHZ v2rayN Releases](https://github.com/shiraztest2000-lang/v2rayN/releases)**
+
+Current release: **7.25.6.006**
+
+| Package | Architecture | Download |
+| --- | --- | --- |
+| Windows x64 | 64-bit | [v2rayN-windows-64.zip](https://github.com/shiraztest2000-lang/v2rayN/releases/download/7.25.6.006/v2rayN-windows-64.zip) |
+| Windows x86 | 32-bit | [v2rayN-windows-86.zip](https://github.com/shiraztest2000-lang/v2rayN/releases/download/7.25.6.006/v2rayN-windows-86.zip) |
+
+Choose the package that matches your Windows architecture. Extract the ZIP file to a writable folder and run `v2rayN.exe`. Back up your configuration and profiles before replacing an existing installation.
+
+### Basic usage
+
+1. Download the x64 or x86 package from the Releases page.
+2. Extract the archive.
+3. Start `v2rayN.exe`.
+4. Import your own server profile, share link, QR code, or subscription.
+5. Select a profile and connect using the application's system proxy or other supported network mode.
+
+This project is a client application. It does **not** provide proxy servers, subscriptions, accounts, or connection credentials. You must provide your own.
+
+### Documentation and links
+
+- **This fork:** https://github.com/shiraztest2000-lang/v2rayN
+- **Releases:** https://github.com/shiraztest2000-lang/v2rayN/releases
+- **Actions / build status:** https://github.com/shiraztest2000-lang/v2rayN/actions
+- **Source project:** https://github.com/2dust/v2rayN
+- **Xray-core:** https://github.com/XTLS/Xray-core
+- **sing-box:** https://github.com/SagerNet/sing-box
+- **Upstream v2rayN Wiki:** https://github.com/2dust/v2rayN/wiki
+
+The upstream Wiki describes the original v2rayN project. Fork-specific release behavior and changes are documented here and in this repository's release notes.
+
+### Disclaimer
+
+This is an independent community fork and is not affiliated with or endorsed by the upstream v2rayN maintainers. Product names and trademarks belong to their respective owners. Use the software and any security-sensitive options at your own risk.
 
 ---
 
-## Documentation / 使用文档
+## فارسی
 
-Read the Wiki for usage guides and configuration details.
+### معرفی پروژه
 
-请阅读 Wiki 获取使用说明和配置教程。
+**SHZ v2rayN** نسخه‌ای سفارشی‌شده از پروژه متن‌باز v2rayN است. این فورک قابلیت‌های اصلی برنامه را حفظ می‌کند و در کنار آن، تغییرات اختصاصی و فرایند انتشار ویژه ویندوز را ارائه می‌دهد.
 
-[https://github.com/2dust/v2rayN/wiki](https://github.com/2dust/v2rayN/wiki)
+- **مخزن پروژه:** https://github.com/shiraztest2000-lang/v2rayN
+- **آخرین نسخه منتشرشده:** `7.25.6.006` (پیش‌انتشار / Pre-release)
+- **معماری‌های قابل دریافت:** ویندوز ۶۴ بیتی و ویندوز ۳۲ بیتی
+- **مجوز:** GPL-3.0
 
----
+این مخزن فورکی از پروژه اصلی [2dust/v2rayN](https://github.com/2dust/v2rayN) است و نسخه رسمی توسعه‌دهندگان اصلی محسوب نمی‌شود.
 
-## Supported Platforms / 支持平台
+### تغییرات اختصاصی این فورک
 
-| Platform / 平台 | x64 | x86 | arm64 | riscv64 | loong64 | ppc64le |
-| --- | --- | --- | --- | --- | --- | --- |
-| Windows | ✅ | ✅ | ✅ | - | - | - |
-| Linux | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| macOS | ✅ | - | ✅ | - | - | - |
+#### ۱. بازگردانی گزینه Allow Insecure برای TLS در Xray
 
-Minimum OS requirements: [Release files introduction](https://github.com/2dust/v2rayN/wiki/Release-files-introduction) / 最低系统要求：[发布文件介绍](https://github.com/2dust/v2rayN/wiki/Release-files-introduction)
+- گزینه کاربردی **Allow Insecure** برای پروفایل‌های مبتنی بر TLS در Xray پشتیبانی می‌شود.
+- با فعال‌کردن این گزینه برای یک پروفایل، مقدار مربوط به `allowInsecure` در پیکربندی تولیدشده Xray قرار می‌گیرد.
+- در حالت غیرفعال، این گزینه به پیکربندی اضافه نمی‌شود و رفتار پیش‌فرض، بررسی اعتبار گواهی TLS است.
+- این تغییر اختصاصی برای پیکربندی‌های **Xray** است و رفتار sing-box را تغییر نمی‌دهد.
 
----
+**هشدار امنیتی:** فعال‌کردن Allow Insecure بررسی معمول گواهی TLS را برای آن اتصال غیرفعال می‌کند و می‌تواند خطر حمله مرد میانی (MITM) را افزایش دهد. این گزینه را فقط در صورت آگاهی از پیامدهای امنیتی و نیاز مشخص فعال کنید.
 
-## GPG Verification / GPG 签名校验
+#### ۲. انتشار نسخه مخصوص ویندوز
 
-Release files are signed with GPG to verify authenticity and integrity, helping prevent mirror, ISP, or CDN hijacking.
+- فرایند انتشار، فایل‌های مخصوص **Windows x64** و **Windows x86** را می‌سازد.
+- در پایان فرایند انتشار بررسی می‌شود که هر Release دقیقاً شامل دو فایل ZIP زیر باشد:
+  - `v2rayN-windows-64.zip`
+  - `v2rayN-windows-86.zip`
+- در فرایند انتشار این فورک، نسخه‌های مخصوص Linux و macOS ساخته نمی‌شوند.
+- پیش از انتشار، شماره نسخه واردشده با نسخه تعریف‌شده در پروژه تطبیق داده می‌شود.
 
-发布文件已使用 GPG 签名，可用于校验文件真实性与完整性，预防镜像站、运营商或 CDN 劫持。
+### دانلود
 
-### Fingerprint / 公钥指纹
+برای دریافت آخرین نسخه، فقط از صفحه انتشار همین فورک استفاده کنید:
 
-```text
-7694 5E9F 3E9A 168F 8070 F195 805D 661C
-134D FAF6 8903 C199 463C 31E5 AE90 3AE0
-```
+**[صفحه دانلود و Releaseهای SHZ v2rayN](https://github.com/shiraztest2000-lang/v2rayN/releases)**
 
----
+نسخه فعلی: **7.25.6.006**
 
-## Community / 社区
+| فایل | معماری | لینک دانلود |
+| --- | --- | --- |
+| Windows x64 | ویندوز ۶۴ بیتی | [دانلود نسخه ۶۴ بیتی](https://github.com/shiraztest2000-lang/v2rayN/releases/download/7.25.6.006/v2rayN-windows-64.zip) |
+| Windows x86 | ویندوز ۳۲ بیتی | [دانلود نسخه ۳۲ بیتی](https://github.com/shiraztest2000-lang/v2rayN/releases/download/7.25.6.006/v2rayN-windows-86.zip) |
 
-Telegram Group / Telegram 群组：
+فایلی را دانلود کنید که با معماری ویندوز شما مطابقت دارد. فایل ZIP را در یک پوشه قابل‌نوشتن استخراج و سپس فایل `v2rayN.exe` را اجرا کنید. پیش از جایگزین‌کردن نسخه قبلی، از تنظیمات و پروفایل‌های خود نسخه پشتیبان تهیه کنید.
 
-[https://t.me/v2rayN](https://t.me/v2rayN)
+### راهنمای شروع سریع
 
-Telegram Channel / Telegram 频道：
+۱. از صفحه Releases نسخه ۶۴ یا ۳۲ بیتی متناسب با ویندوز خود را دریافت کنید.
 
-[https://t.me/github_2dust](https://t.me/github_2dust)
+۲. فایل ZIP را استخراج کنید.
+
+۳. فایل `v2rayN.exe` را اجرا کنید.
+
+۴. پروفایل سرور، لینک اشتراک، کد QR یا Subscription متعلق به خودتان را وارد کنید.
+
+۵. یک پروفایل را انتخاب و از طریق System Proxy یا سایر حالت‌های پشتیبانی‌شده برنامه متصل شوید.
+
+این نرم‌افزار صرفاً یک **کلاینت** است و هیچ سرور پروکسی، اشتراک، حساب کاربری یا اطلاعات اتصال آماده‌ای ارائه نمی‌کند. تهیه اطلاعات اتصال بر عهده کاربر است.
+
+### مستندات و لینک‌های رسمی
+
+- **مخزن همین فورک:** https://github.com/shiraztest2000-lang/v2rayN
+- **دانلود نسخه‌ها:** https://github.com/shiraztest2000-lang/v2rayN/releases
+- **وضعیت ساخت و Workflowها:** https://github.com/shiraztest2000-lang/v2rayN/actions
+- **پروژه اصلی:** https://github.com/2dust/v2rayN
+- **مخزن Xray-core:** https://github.com/XTLS/Xray-core
+- **مخزن sing-box:** https://github.com/SagerNet/sing-box
+- **ویکی پروژه اصلی v2rayN:** https://github.com/2dust/v2rayN/wiki
+
+ویکی پروژه اصلی، راهنمای نسخه upstream است. تغییرات اختصاصی و روش انتشار این فورک در همین README و توضیحات Releaseهای این مخزن درج می‌شود.
+
+### سلب مسئولیت
+
+این پروژه یک فورک مستقل و جامعه‌محور است و وابستگی یا تأیید رسمی از سوی توسعه‌دهندگان اصلی v2rayN ندارد. نام‌ها و علائم تجاری متعلق به صاحبان مربوطه هستند. استفاده از نرم‌افزار و گزینه‌های حساس امنیتی بر عهده کاربر است.
