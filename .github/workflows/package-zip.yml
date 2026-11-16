@@ -105,7 +105,7 @@ jobs:
       shell: bash
       run: |
         mv "${{ steps.package-vars.outputs.package_file }}" \
-          "${{ steps.package-vars.outputs.package_dir }}${{ steps.package-vars.outputs.rename_suffix }}.zip"
+          "${{ steps.package-vars.outputs.final_package_file }}"
 
     - name: Upload zip artifact
       uses: actions/upload-artifact@v7
