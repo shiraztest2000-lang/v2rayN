@@ -22,6 +22,7 @@ jobs:
     with:
       target: windows
       project: ./v2rayN/v2rayN.csproj
+      version: ${{ inputs.release_tag }}
       architectures: '["x64"]'
 
   release-zip:
