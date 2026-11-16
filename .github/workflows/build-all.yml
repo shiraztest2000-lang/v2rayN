@@ -61,8 +61,12 @@ jobs:
             (( next_num <= 999 )) || { echo "Three-digit release counter exhausted for $base_version" >&2; exit 1; }
             input_tag="$(printf '%s.%03d' "$base_version" "$next_num")"
           else
-            [[ "$input_tag" =~ ^${base_version//./\\.}\\.[0-9]{3}$ ]] || {
-              echo "Manual release tag must match $base_version.NNN" >&2
+            [[ "$input_tag" =~ ^([0-9]+\\.[0-9]+\\.[0-9]+)\\.([0-9]{3})$ ]] || {
+              echo "Manual release tag must have the form major.minor.patch.NNN" >&2
+              exit 1
+            }
+            [[ "${BASH_REMATCH[1]}" == "$base_version" ]] || {
+              echo "Manual release tag must use project base version $base_version" >&2
               exit 1
             }
           fi
