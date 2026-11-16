@@ -2,7 +2,7 @@ name: Check upstream v2rayN release and update SHZ fork
 
 on:
   schedule:
-    # Every Monday at 03:17 UTC (once every 7 days).
+    # Check upstream once a week.
     - cron: '17 3 * * 1'
   workflow_dispatch:
 
@@ -17,14 +17,14 @@ jobs:
   check-and-update:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout SHZ fork
+      - name: Checkout SHZ fork with full history and tags
         uses: actions/checkout@v7
         with:
           ref: master
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Check upstream release and merge it when newer
+      - name: Merge latest upstream and preserve every SHZ customization
         id: update
         shell: bash
         env:
@@ -54,8 +54,7 @@ jobs:
           current_base="${BASH_REMATCH[1]}"
           current_suffix="${BASH_REMATCH[2]}"
 
-          newest="$(printf '%s\n%s\n' "$current_base" "$upstream_tag" | sort -V | tail -n1)"
-          if [[ "$newest" == "$current_base" ]]; then
+          if [[ "$(printf '%s\n%s\n' "$current_base" "$upstream_tag" | sort -V | tail -n1)" == "$current_base" ]]; then
             echo "No newer upstream release. Current SHZ base: $current_base; upstream latest: $upstream_tag."
             echo "updated=false" >> "$GITHUB_OUTPUT"
             exit 0
@@ -63,14 +62,90 @@ jobs:
 
           echo "New upstream release detected: $upstream_tag (current SHZ base: $current_base)."
           git remote add upstream https://github.com/2dust/v2rayN.git
-          git fetch --no-tags upstream "refs/tags/$upstream_tag:refs/tags/upstream-$upstream_tag"
+          git fetch --no-tags upstream \
+            "refs/tags/$current_base:refs/tags/upstream-$current_base" \
+            "refs/tags/$upstream_tag:refs/tags/upstream-$upstream_tag"
 
-          # Merge the exact upstream release tag. If a real conflict exists,
-          # stop without pushing or publishing a release.
+          # Capture the complete SHZ delta against the exact upstream base.
+          # This includes source edits, branding, default settings, UI text,
+          # documentation, assets and all custom release/build workflows.
+          shz_patch="$RUNNER_TEMP/shz-customizations.patch"
+          git diff --binary --full-index "refs/tags/upstream-$current_base" HEAD > "$shz_patch"
+          test -s "$shz_patch" || {
+            echo "::error::No SHZ customization patch was found; refusing an unsafe upstream update."
+            exit 1
+          }
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # A merge conflict is a hard stop. Never discard either upstream or SHZ work.
           git merge --no-ff --no-edit "refs/tags/upstream-$upstream_tag"
 
+          # The merge normally retains SHZ commits. If upstream changes caused
+          # any part of the saved SHZ patch to disappear, re-apply it with Git's
+          # three-way machinery. Any unresolved overlap stops before push/release.
+          if git apply --reverse --check "$shz_patch" >/dev/null 2>&1; then
+            echo "All saved SHZ customizations are present after merge."
+          else
+            echo "Re-applying saved SHZ customizations with a three-way merge."
+            git apply --3way --index "$shz_patch" || {
+              echo "::error::SHZ customizations could not be safely re-applied. No push or release will occur."
+              exit 1
+            }
+          fi
+
+          # Validate the specific runtime compatibility patch in its exact source locations.
+          outbound_file="v2rayN/ServiceLib/Services/CoreConfig/V2ray/V2rayOutboundService.cs"
+          model_file="v2rayN/ServiceLib/Models/CoreConfigs/V2rayConfig.cs"
+          profile_file="v2rayN/ServiceLib/Models/Entities/ProfileItem.cs"
+
+          grep -Fq 'allowInsecure = _node.GetAllowInsecure() ? true : null,' "$outbound_file" || {
+            echo "::error::TLS allowInsecure assignment is missing from $outbound_file"
+            exit 1
+          }
+          grep -Fq 'public bool? allowInsecure { get; set; }' "$model_file" || {
+            echo "::error::TlsSettings4Ray.allowInsecure model property is missing."
+            exit 1
+          }
+          grep -Fq 'public bool GetAllowInsecure()' "$profile_file" || {
+            echo "::error::ProfileItem.GetAllowInsecure() is missing."
+            exit 1
+          }
+          grep -Fq 'public string AllowInsecure { get; set; }' "$profile_file" || {
+            echo "::error::ProfileItem.AllowInsecure storage property is missing."
+            exit 1
+          }
+
+          # Validate actual packaging sources, not just the presence of a generic keyword.
+          python - <<'PY'
+          from pathlib import Path
+
+          package = Path(".github/workflows/package-zip.yml").read_text(encoding="utf-8")
+          x86 = Path(".github/workflows/build-windows-x86.yml").read_text(encoding="utf-8")
+          build = Path(".github/workflows/build.yml").read_text(encoding="utf-8")
+          release = Path(".github/workflows/build-all.yml").read_text(encoding="utf-8")
+          uploader = Path(".github/workflows/upload-sign.yml").read_text(encoding="utf-8")
+
+          checks = {
+              "x64 package downloads SHZ Xray": "https://github.com/shiraztest2000-lang/Xray-core/releases/latest/download/Xray-windows-64.zip" in package,
+              "x64 package installs xray.exe": 'xray_dir="$package_dir/bin/xray"' in package and 'cp -a "$(dirname "$xray_exe")/." "$xray_dir/"' in package,
+              "x86 package downloads SHZ Xray": "https://github.com/shiraztest2000-lang/Xray-core/releases/latest/download/Xray-windows-32.zip" in x86,
+              "x86 package installs xray.exe": '$xrayDir = Join-Path $bin "xray"' in x86 and 'throw "SHZ xray.exe was not copied into the package"' in x86,
+              "Windows smoke test validates allowInsecure": "allowInsecure" in x86 and "allowInsecure" in build and "Verify SHZ Xray allowInsecure support on Windows" in build,
+              "release pipeline builds Windows x64": "build-windows.yml" in release and "Build Windows x64 WPF" in release,
+              "release pipeline builds Windows x86": "build-windows-x86.yml" in release and "Build Windows x86 WPF" in release,
+              "release pipeline does not publish Linux/macOS": "windows-x64:" in release and "windows-x86:" in release and "linux:" not in release and "macos:" not in release,
+              "old release assets cannot be overwritten": "overwrite: false" in uploader and uploader.count("overwrite: false") == 2,
+          }
+          failed = [name for name, ok in checks.items() if not ok]
+          for name, ok in checks.items():
+              print(("PASS" if ok else "FAIL") + ": " + name)
+          if failed:
+              raise SystemExit("SHZ workflow validation failed: " + "; ".join(failed))
+          PY
+
+          # Advance the SHZ counter while using the newly merged upstream base version.
           next_suffix=$((10#$current_suffix + 1))
           if (( next_suffix > 999 )); then
             echo "::error::The three-digit release counter is exhausted."
@@ -78,21 +153,26 @@ jobs:
           fi
           next_version="$(printf '%s.%03d' "$upstream_tag" "$next_suffix")"
 
-          # Verify that the proven SHZ customizations survived the upstream merge.
-          grep -R -F --include='*.cs' 'GetAllowInsecure()' v2rayN >/dev/null && \
-            grep -R -F --include='*.cs' 'allowInsecure =' v2rayN >/dev/null || {
-            echo "::error::The SHZ allowInsecure source customization is missing after merge."
+          # Never reuse an existing release/tag. Old releases and tags are immutable.
+          if gh api "repos/$REPOSITORY/releases/tags/$next_version" >/dev/null 2>&1; then
+            echo "::error::Release $next_version already exists. Refusing to modify it."
             exit 1
-          }
-          grep -F 'Xray-windows-64.zip' .github/workflows/package-zip.yml >/dev/null
-          grep -F 'Xray-windows-32.zip' .github/workflows/build-windows-x86.yml >/dev/null
-          grep -F 'Verify SHZ Xray allowInsecure support on Windows' .github/workflows/build.yml >/dev/null
+          fi
+          if git ls-remote --exit-code --tags origin "refs/tags/$next_version" >/dev/null 2>&1; then
+            echo "::error::Git tag $next_version already exists. Refusing to move or replace it."
+            exit 1
+          fi
 
           sed -i -E "s#(<Version>)[^<]+(</Version>)#\1$next_version\2#" v2rayN/Directory.Build.props
-          git add v2rayN/Directory.Build.props
-          git commit -m "Set SHZv2rayN version $next_version for upstream $upstream_tag"
+          git add -A
+          git diff --cached --check
+          git diff --cached --quiet && {
+            echo "::error::No changes remain after upstream merge and SHZ validation."
+            exit 1
+          }
+          git commit -m "Update SHZv2rayN to upstream $upstream_tag with SHZ customizations"
 
-          # Use RELEASE_TOKEN so this push triggers the normal release workflow.
+          # Push only the branch. No tag, release, asset, or history deletion/update is performed here.
           git remote set-url origin "https://x-access-token:${PUSH_TOKEN}@github.com/${REPOSITORY}.git"
           git push origin HEAD:master
 
