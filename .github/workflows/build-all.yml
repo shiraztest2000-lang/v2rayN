@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for number in $(seq 9 20); do
+          for number in $(seq 10 20); do
             tag="7.25.6.$(printf '%03d' "$number")"
             if gh release view "$tag" --repo "$REPOSITORY" >/dev/null 2>&1; then
               echo "Deleting accidental release and tag $tag"
