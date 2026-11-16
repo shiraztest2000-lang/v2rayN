@@ -1,0 +1,99 @@
+name: Check upstream v2rayN release and update SHZ fork
+
+on:
+  schedule:
+    # Every Monday at 03:17 UTC (once every 7 days).
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: shzv2rayn-upstream-update
+  cancel-in-progress: false
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout SHZ fork
+        uses: actions/checkout@v7
+        with:
+          ref: master
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check upstream release and merge it when newer
+        id: update
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          PUSH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${GH_TOKEN:-}" || -z "${PUSH_TOKEN:-}" ]]; then
+            echo "::error::RELEASE_TOKEN is required to read upstream releases and push updates."
+            exit 1
+          fi
+
+          upstream_tag="$(gh api repos/2dust/v2rayN/releases/latest --jq '.tag_name')"
+          upstream_tag="${upstream_tag#v}"
+          [[ "$upstream_tag" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+            echo "::error::Unexpected upstream release tag: $upstream_tag"
+            exit 1
+          }
+
+          current_version="$(sed -nE 's#^[[:space:]]*<Version>([^<]+)</Version>[[:space:]]*$#\1#p' v2rayN/Directory.Build.props | head -n1)"
+          [[ "$current_version" =~ ^([0-9]+\.[0-9]+\.[0-9]+)\.([0-9]{3})$ ]] || {
+            echo "::error::Unexpected SHZ project version: $current_version"
+            exit 1
+          }
+          current_base="${BASH_REMATCH[1]}"
+          current_suffix="${BASH_REMATCH[2]}"
+
+          newest="$(printf '%s\n%s\n' "$current_base" "$upstream_tag" | sort -V | tail -n1)"
+          if [[ "$newest" == "$current_base" ]]; then
+            echo "No newer upstream release. Current SHZ base: $current_base; upstream latest: $upstream_tag."
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "New upstream release detected: $upstream_tag (current SHZ base: $current_base)."
+          git remote add upstream https://github.com/2dust/v2rayN.git
+          git fetch --no-tags upstream "refs/tags/$upstream_tag:refs/tags/upstream-$upstream_tag"
+
+          # Merge the exact upstream release tag. If a real conflict exists,
+          # stop without pushing or publishing a release.
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git merge --no-ff --no-edit "refs/tags/upstream-$upstream_tag"
+
+          next_suffix=$((10#$current_suffix + 1))
+          if (( next_suffix > 999 )); then
+            echo "::error::The three-digit release counter is exhausted."
+            exit 1
+          fi
+          next_version="$(printf '%s.%03d' "$upstream_tag" "$next_suffix")"
+
+          # Verify that the proven SHZ customizations survived the upstream merge.
+          grep -R -F --include='*.cs' 'allowInsecure' v2rayN >/dev/null || {
+            echo "::error::The SHZ allowInsecure source customization is missing after merge."
+            exit 1
+          }
+          grep -F 'Xray-windows-64.zip' .github/workflows/package-zip.yml >/dev/null
+          grep -F 'Xray-windows-32.zip' .github/workflows/build-windows-x86.yml >/dev/null
+          grep -F 'Verify SHZ Xray allowInsecure support on Windows' .github/workflows/build.yml >/dev/null
+
+          sed -i -E "s#(<Version>)[^<]+(</Version>)#\1$next_version\2#" v2rayN/Directory.Build.props
+          git add v2rayN/Directory.Build.props
+          git commit -m "Set SHZv2rayN version $next_version for upstream $upstream_tag"
+
+          # Use RELEASE_TOKEN so this push triggers the normal release workflow.
+          git remote set-url origin "https://x-access-token:${PUSH_TOKEN}@github.com/${REPOSITORY}.git"
+          git push origin HEAD:master
+
+          echo "Updated fork to upstream $upstream_tag and prepared SHZv2rayN $next_version."
+          echo "updated=true" >> "$GITHUB_OUTPUT"
