@@ -19,7 +19,7 @@
 SHZv2rayN is a customized fork of the open-source v2rayN client. It keeps the upstream application's core functionality while maintaining fork-specific changes and a Windows-only release pipeline.
 
 - **Repository:** https://github.com/shiraztest2000-lang/v2rayN
-- **Latest published version:** `7.25.6.008` (Pre-release)
+- **Configured next release version:** `7.25.6.008` (release build pending)
 - **Supported release platforms:** Windows x64 and Windows x86 (32-bit)
 - **License:** GPL-3.0
 - **First-run routing default:** Global
@@ -57,8 +57,8 @@ Current release: **7.25.6.008**
 
 | Package | Architecture | Download |
 | --- | --- | --- |
-| Windows x64 | 64-bit | [SHZv2rayN-7.25.6.008-windows-64.zip](https://github.com/shiraztest2000-lang/v2rayN/releases/download/7.25.6.008/SHZv2rayN-7.25.6.008-windows-64.zip) |
-| Windows x86 | 32-bit | [SHZv2rayN-7.25.6.008-windows-86.zip](https://github.com/shiraztest2000-lang/v2rayN/releases/download/7.25.6.008/SHZv2rayN-7.25.6.008-windows-86.zip) |
+| Windows x64 | 64-bit | [SHZv2rayN-7.25.6.008-windows-64.zip](https://github.com/shiraztest2000-lang/v2rayN/releases) |
+| Windows x86 | 32-bit | [SHZv2rayN-7.25.6.008-windows-86.zip](https://github.com/shiraztest2000-lang/v2rayN/releases) |
 
 Choose the package that matches your Windows architecture. Extract the ZIP file to a writable folder and run `SHZv2rayN.exe`. Back up your configuration and profiles before replacing an existing installation.
 
@@ -97,7 +97,7 @@ This is an independent community fork and is not affiliated with or endorsed by 
 **SHZv2rayN** نسخه‌ای سفارشی‌شده از پروژه متن‌باز v2rayN است. این فورک قابلیت‌های اصلی برنامه را حفظ می‌کند و در کنار آن، تغییرات اختصاصی و فرایند انتشار ویژه ویندوز را ارائه می‌دهد.
 
 - **مخزن پروژه:** https://github.com/shiraztest2000-lang/v2rayN
-- **آخرین نسخه منتشرشده:** `7.25.6.008` (پیش‌انتشار / Pre-release)
+- **نسخه تنظیم‌شده برای انتشار بعدی:** `7.25.6.008` (ساخت و انتشار در انتظار)
 - **معماری‌های قابل دریافت:** ویندوز ۶۴ بیتی و ویندوز ۳۲ بیتی
 - **مجوز:** GPL-3.0
 - **مسیریابی پیش‌فرض در اجرای نخست:** Global
