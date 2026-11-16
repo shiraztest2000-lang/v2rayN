@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <!-- Keep the last source version as the seed; release numbering advances from the latest published tag. -->
-        <Version>7.25.6.008</Version>
+        <Version>7.25.6.009</Version>
     </PropertyGroup>
 
     <PropertyGroup>
