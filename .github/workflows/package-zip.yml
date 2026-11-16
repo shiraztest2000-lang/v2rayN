@@ -109,7 +109,33 @@ jobs:
         fi
         # Merge the contents of the legacy core folder into the branded
         # package root. This keeps bin/ beside the application executable.
-        cp -a "$core_root/." "${{ steps.package-vars.outputs.package_dir }}/"
+        package_dir="${{ steps.package-vars.outputs.package_dir }}"
+        cp -a "$core_root/." "$package_dir/"
+
+        # Replace the upstream Xray binary with the SHZ build that keeps
+        # legacy allowInsecure support. Do not change sing-box or other core files.
+        if [[ "$Target" == "windows" && "$Arch" == "64" ]]; then
+          xray_archive="shz-xray-windows-64.zip"
+          xray_extract="shz-xray-windows-64"
+          xray_dir="$package_dir/bin/xray"
+          xray_url="https://github.com/shiraztest2000-lang/Xray-core/releases/latest/download/Xray-windows-64.zip"
+
+          mkdir -p "$xray_dir" "$xray_extract"
+          curl --fail --location --silent --show-error "$xray_url" --output "$xray_archive"
+          unzip -q "$xray_archive" -d "$xray_extract"
+
+          xray_exe="$(find "$xray_extract" -type f -iname 'xray.exe' -print -quit)"
+          if [[ -z "$xray_exe" ]]; then
+            echo "The SHZ Xray release does not contain xray.exe." >&2
+            exit 1
+          fi
+          cp -a "$(dirname "$xray_exe")/." "$xray_dir/"
+          test -s "$xray_dir/xray.exe"
+          "$xray_dir/xray.exe" version
+          echo "Using SHZ-patched Xray from $xray_url"
+          rm -rf "$xray_archive" "$xray_extract"
+        fi
+
         rm -rf "$core_archive" "$core_extract"
 
     - name: Package and validate zip archive layout
