@@ -4,6 +4,8 @@ name: Update SHZ v2rayN brand icons
 on:
   workflow_dispatch:
   push:
+    branches:
+      - master
     paths:
       - .github/workflows/update-brand-icons.yml
 
