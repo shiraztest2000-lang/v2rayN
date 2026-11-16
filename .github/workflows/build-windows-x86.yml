@@ -242,7 +242,34 @@ jobs:
 
           New-Item -ItemType Directory -Force -Path $packageFolder | Out-Null
           Copy-Item "publish/${{ matrix.flavor }}/*" $packageFolder -Recurse -Force
+          if (-not (Test-Path (Join-Path $packageFolder "bin"))) {
+            throw "Expected bin folder directly inside $packageFolder"
+          }
           Compress-Archive -Path $packageFolder -DestinationPath $zipName -Force
+
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $archive = [System.IO.Compression.ZipFile]::OpenRead((Join-Path $PWD $zipName))
+          try {
+            $entries = @($archive.Entries | ForEach-Object { $_.FullName })
+            $prefix = "$packageFolderName/"
+            $outside = @($entries | Where-Object { -not $_.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase) })
+            if ($outside.Count -gt 0) {
+              throw "ZIP contains files outside the branded folder: $($outside -join ', ')"
+            }
+            $binFiles = @($entries | Where-Object { $_.StartsWith(($prefix + "bin/"), [System.StringComparison]::OrdinalIgnoreCase) })
+            if ($binFiles.Count -eq 0) {
+              throw "ZIP does not contain bin/ directly inside $packageFolderName"
+            }
+            $legacy = @($entries | Where-Object { $_ -match '(^|/)v2rayN-windows-(64|86)/' })
+            if ($legacy.Count -gt 0) {
+              throw "ZIP contains an unwanted legacy wrapper folder: $($legacy -join ', ')"
+            }
+            Write-Host "Validated $($entries.Count) ZIP entries under $packageFolderName/ with bin/ at package root."
+          }
+          finally {
+            $archive.Dispose()
+          }
+
           "zip_name=$zipName" >> $env:GITHUB_OUTPUT
 
       - name: Upload zip artifact
