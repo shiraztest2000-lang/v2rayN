@@ -2,6 +2,8 @@ name: release Windows x64 and x86 only
 
 on:
   push:
+    branches:
+      - master
     paths:
       - 'v2rayN/Directory.Build.props'
   workflow_dispatch:
@@ -13,7 +15,7 @@ on:
         type: string
 
 permissions:
-  actions: read
+  actions: write
   contents: write
 
 concurrency:
@@ -21,7 +23,49 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  cleanup-invalid-loop-releases:
+    name: Remove accidental releases, tags, and workflow runs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete releases and tags created by the previous trigger loop
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for number in $(seq 9 20); do
+            tag="7.25.6.$(printf '%03d' "$number")"
+            if gh release view "$tag" --repo "$REPOSITORY" >/dev/null 2>&1; then
+              echo "Deleting accidental release and tag $tag"
+              gh release delete "$tag" --repo "$REPOSITORY" --cleanup-tag --yes
+            else
+              echo "No release found for $tag; checking for a leftover tag."
+              gh api --method DELETE "repos/$REPOSITORY/git/refs/tags/$tag" >/dev/null 2>&1 || true
+            fi
+          done
+
+      - name: Delete workflow run records created by the accidental tag loop
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_ids="$(gh run list --repo "$REPOSITORY" --limit 1000 --json databaseId,headBranch \
+            --jq '.[] | select(.headBranch | test("^7\\.25\\.6\\.(009|01[0-9]|020)$")) | .databaseId')"
+          if [[ -z "$run_ids" ]]; then
+            echo "No accidental workflow runs remain."
+            exit 0
+          fi
+          while IFS= read -r run_id; do
+            [[ -n "$run_id" ]] || continue
+            echo "Deleting accidental workflow run $run_id"
+            gh run delete "$run_id" --repo "$REPOSITORY" || echo "Could not delete run $run_id; continuing."
+          done <<< "$run_ids"
+
   validate-release:
+    needs: cleanup-invalid-loop-releases
     name: Resolve and validate release version
     runs-on: ubuntu-latest
     outputs:
