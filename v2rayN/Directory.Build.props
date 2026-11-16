@@ -1,7 +1,7 @@
 <Project>
 
     <PropertyGroup>
-        <!-- Keep the last valid release as the seed; the workflow increments after removing accidental loop releases. -->
+        <!-- Keep the last source version as the seed; release numbering advances from the latest published tag. -->
         <Version>7.25.6.008</Version>
     </PropertyGroup>
 
