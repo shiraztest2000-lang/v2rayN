@@ -69,6 +69,7 @@ jobs:
             -r win-x86 `
             -p:SelfContained=true `
             -p:EnableWindowsTargeting=true `
+            -p:Version=${{ inputs.release_tag }} `
             -o "publish/${{ matrix.flavor }}"
 
       - name: Publish AmazTool win-x86
@@ -234,9 +235,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          $versionMatch = [regex]::Match((Get-Content "v2rayN/Directory.Build.props" -Raw), '<Version>([^<]+)</Version>')
-          if (-not $versionMatch.Success) { throw "Could not read release version" }
-          $releaseVersion = $versionMatch.Groups[1].Value
+          $releaseVersion = "${{ inputs.release_tag }}"
           $packageFolderName = "SHZv2rayN-$releaseVersion"
           $packageFolder = Join-Path $PWD $packageFolderName
           $zipName = "SHZv2rayN-$releaseVersion-windows-86.zip"
