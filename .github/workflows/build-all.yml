@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: 'Release version. Defaults to the project version.'
+        description: 'Use auto to increment the final three digits from the latest published release, or enter a version manually.'
         required: false
         default: 'auto'
         type: string
