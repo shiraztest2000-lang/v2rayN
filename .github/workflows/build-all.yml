@@ -6,7 +6,6 @@ on:
       - master
     paths:
       - 'v2rayN/Directory.Build.props'
-      - '.github/workflows/**'
   workflow_dispatch:
     inputs:
       release_tag:
@@ -38,7 +37,6 @@ jobs:
         shell: bash
         env:
           INPUT_TAG: ${{ inputs.release_tag }}
-          HEAD_MESSAGE: ${{ github.event.head_commit.message }}
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           REPOSITORY: ${{ github.repository }}
         run: |
@@ -53,10 +51,7 @@ jobs:
           input_tag="${INPUT_TAG:-auto}"
           input_tag="${input_tag#v}"
 
-          if [[ "$HEAD_MESSAGE" == *"[replace-release]"* ]]; then
-            input_tag="$project_version"
-            echo "Retry marker detected; rebuilding the exact project version: $input_tag"
-          elif [[ "$input_tag" == "auto" || -z "$input_tag" ]]; then
+          if [[ "$input_tag" == "auto" || -z "$input_tag" ]]; then
             latest_suffix="$(gh release list --repo "$REPOSITORY" --limit 100 --json tagName --jq '.[].tagName' |
               awk -v prefix="$base_version." 'index($0,prefix)==1 {
                 suffix=substr($0,length(prefix)+1)
@@ -91,18 +86,9 @@ jobs:
           RELEASE_TAG: ${{ needs.validate-release.outputs.release_tag }}
           REPOSITORY: ${{ github.repository }}
           TARGET_SHA: ${{ github.sha }}
-          GITHUB_EVENT_HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         shell: bash
         run: |
           set -euo pipefail
-          if [[ "${GITHUB_EVENT_HEAD_COMMIT_MESSAGE:-}" == *"[replace-release]"* ]]; then
-            echo "Removing incomplete release and tag $RELEASE_TAG before rebuilding the same version."
-            if gh release view "$RELEASE_TAG" --repo "$REPOSITORY" >/dev/null 2>&1; then
-              gh release delete "$RELEASE_TAG" --repo "$REPOSITORY" --yes --cleanup-tag
-            else
-              gh api --method DELETE "repos/$REPOSITORY/git/refs/tags/$RELEASE_TAG" >/dev/null 2>&1 || true
-            fi
-          fi
           if gh release view "$RELEASE_TAG" --repo "$REPOSITORY" >/dev/null 2>&1; then
             echo "Release $RELEASE_TAG already exists; leaving its current assets untouched."
           else
