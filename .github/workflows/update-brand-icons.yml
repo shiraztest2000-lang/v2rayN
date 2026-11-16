@@ -1,0 +1,91 @@
+name: Update SHZ v2rayN brand icons
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/update-brand-icons.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-shz-brand-icons
+  cancel-in-progress: false
+
+jobs:
+  convert-and-commit:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Install Pillow
+        run: python -m pip install --disable-pip-version-check Pillow
+
+      - name: Convert logo and update application icon resources
+        shell: pwsh
+        run: |
+          @'
+          from pathlib import Path
+          from PIL import Image
+
+          source = Path("assets/logo.png")
+          if not source.is_file() or source.stat().st_size < 100:
+              raise SystemExit("assets/logo.png is missing or invalid")
+
+          image = Image.open(source).convert("RGBA")
+          if image.width < 64 or image.height < 64:
+              raise SystemExit(f"Logo resolution is too small: {image.size}")
+
+          # Fit the complete original artwork into a transparent square canvas.
+          # This preserves the logo's proportions and avoids cropping.
+          side = 1024
+          fitted = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+          image.thumbnail((side - 64, side - 64), Image.Resampling.LANCZOS)
+          fitted.alpha_composite(image, ((side - image.width) // 2, (side - image.height) // 2))
+
+          ico_paths = [
+              "v2rayN/v2rayN/Resources/v2rayN.ico",
+              "v2rayN/v2rayN/Resources/NotifyIcon1.ico",
+              "v2rayN/v2rayN.Desktop/Assets/v2rayN.ico",
+              "v2rayN/v2rayN.Desktop/Assets/NotifyIcon1.ico",
+          ]
+          sizes = [(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)]
+          for name in ico_paths:
+              path = Path(name)
+              path.parent.mkdir(parents=True, exist_ok=True)
+              fitted.save(path, format="ICO", sizes=sizes)
+
+          # Avalonia desktop splash/app image resource, optimized for common UI use.
+          png_path = Path("v2rayN/v2rayN.Desktop/v2rayN.png")
+          png_path.parent.mkdir(parents=True, exist_ok=True)
+          fitted.resize((512, 512), Image.Resampling.LANCZOS).save(png_path, format="PNG", optimize=True)
+
+          # Validate generated files before committing.
+          for name in ico_paths:
+              with Image.open(name) as icon:
+                  if icon.format != "ICO":
+                      raise SystemExit(f"Invalid ICO output: {name}")
+          with Image.open(png_path) as png:
+              if png.format != "PNG" or png.size != (512, 512):
+                  raise SystemExit("Invalid desktop PNG output")
+          print("Generated and validated:", *ico_paths, str(png_path), sep="\\n")
+          '@ | Set-Content -Path convert_brand_icons.py -Encoding utf8
+          python convert_brand_icons.py
+
+      - name: Commit generated icon assets
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add v2rayN/v2rayN/Resources/v2rayN.ico v2rayN/v2rayN/Resources/NotifyIcon1.ico v2rayN/v2rayN.Desktop/Assets/v2rayN.ico v2rayN/v2rayN.Desktop/Assets/NotifyIcon1.ico v2rayN/v2rayN.Desktop/v2rayN.png
+          if (git diff --cached --quiet) {
+            Write-Host "Generated icon assets already match the current repository."
+            exit 0
+          }
+          git commit -m "Replace application branding icons with SHZ logo"
+          git push origin HEAD:master
