@@ -1,0 +1,26 @@
+name: Temporary cleanup of maintenance run records
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/cleanup-temporary-maintenance-runs.yml'
+
+permissions:
+  actions: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove temporary cleanup attempts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_PROMPT_DISABLED: "1"
+          REPOSITORY: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh run delete 43823397985 --repo "$REPOSITORY"
+          gh run delete 43823454238 --repo "$REPOSITORY"
