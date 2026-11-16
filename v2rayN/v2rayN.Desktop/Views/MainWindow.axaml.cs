@@ -144,7 +144,7 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
 
         if (Utils.IsWindows())
         {
-            Title = $"{Utils.GetVersion()} - {(Utils.IsAdministrator() ? ResUI.RunAsAdmin : ResUI.NotRunAsAdmin)}";
+            Title = $"SHZv2rayN {Utils.GetVersion()}     Edited By ShirazTipsy - {(Utils.IsAdministrator() ? ResUI.RunAsAdmin : ResUI.NotRunAsAdmin)}";
 
             if (!Design.IsDesignMode)
             {
@@ -154,7 +154,7 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         }
         else
         {
-            Title = $"{Utils.GetVersion()}";
+            Title = $"SHZv2rayN {Utils.GetVersion()}     Edited By ShirazTipsy";
             menuAddServerViaScan.IsVisible = false;
         }
 

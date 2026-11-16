@@ -62,7 +62,7 @@ jobs:
             gh release create "$RELEASE_TAG" \
               --repo "$REPOSITORY" \
               --target "$TARGET_SHA" \
-              --title "v2rayN $RELEASE_TAG" \
+              --title "SHZv2rayN $RELEASE_TAG" \
               --notes "Windows x64 and x86 release." \
               --prerelease
           fi
@@ -95,7 +95,7 @@ jobs:
         run: |
           set -euo pipefail
           actual="$(gh release view "$RELEASE_TAG" --repo "$REPOSITORY" --json assets --jq '[.assets[].name] | sort | join(",")')"
-          expected="v2rayN-windows-64.zip,v2rayN-windows-86.zip"
+          expected="SHZv2rayN-${RELEASE_TAG}-windows-64.zip,SHZv2rayN-${RELEASE_TAG}-windows-86.zip"
           if [[ "$actual" != "$expected" ]]; then
             echo "Unexpected release assets."
             echo "Expected: $expected"

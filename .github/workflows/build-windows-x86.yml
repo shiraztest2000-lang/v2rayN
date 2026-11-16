@@ -28,7 +28,6 @@ jobs:
         include:
           - flavor: wpf
             project: ./v2rayN/v2rayN/v2rayN.csproj
-            zip_name: v2rayN-windows-86.zip
 
     steps:
       - name: Checkout
@@ -231,20 +230,27 @@ jobs:
           }
 
       - name: Package zip
+        id: package
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
+          $versionMatch = [regex]::Match((Get-Content "v2rayN/Directory.Build.props" -Raw), '<Version>([^<]+)</Version>')
+          if (-not $versionMatch.Success) { throw "Could not read release version" }
+          $releaseVersion = $versionMatch.Groups[1].Value
+          $packageFolderName = "SHZv2rayN-$releaseVersion"
+          $packageFolder = Join-Path $PWD $packageFolderName
+          $zipName = "SHZv2rayN-$releaseVersion-windows-86.zip"
 
-          Compress-Archive `
-            -Path "publish/${{ matrix.flavor }}/*" `
-            -DestinationPath "${{ matrix.zip_name }}" `
-            -Force
+          New-Item -ItemType Directory -Force -Path $packageFolder | Out-Null
+          Copy-Item "publish/${{ matrix.flavor }}/*" $packageFolder -Recurse -Force
+          Compress-Archive -Path $packageFolder -DestinationPath $zipName -Force
+          "zip_name=$zipName" >> $env:GITHUB_OUTPUT
 
       - name: Upload zip artifact
         uses: actions/upload-artifact@v7
         with:
           name: release-windows-x86-${{ matrix.flavor }}
-          path: ${{ matrix.zip_name }}
+          path: ${{ steps.package.outputs.zip_name }}
           if-no-files-found: error
 
   release-x86:

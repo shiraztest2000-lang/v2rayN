@@ -2428,7 +2428,7 @@ public static class ConfigDbHandler
 
         if (!blImportAdvancedRules)
         {
-            await SetDefaultRouting(item2);
+            await SetDefaultRouting(item1);
         }
         return 0;
     }

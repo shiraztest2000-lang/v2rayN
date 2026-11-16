@@ -18,7 +18,7 @@ public class ProfileItem
         Network = string.Empty;
         Remarks = string.Empty;
         StreamSecurity = string.Empty;
-        AllowInsecure = string.Empty;
+        AllowInsecure = Global.StringTrue;
     }
 
     #region function
