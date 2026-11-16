@@ -70,7 +70,7 @@ jobs:
         tag: ${{ inputs.release_tag }}
         file_glob: true
         prerelease: true
-        overwrite: true
+        overwrite: false
 
     - name: Upload release signatures
       if: inputs.sign
@@ -80,4 +80,4 @@ jobs:
         tag: ${{ inputs.release_tag }}
         file_glob: true
         prerelease: true
-        overwrite: true
+        overwrite: false
