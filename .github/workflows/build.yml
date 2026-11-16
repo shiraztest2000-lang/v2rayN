@@ -138,6 +138,59 @@ jobs:
       working-directory: ./v2rayN
       run: dotnet publish $Project -c Release -r $RID -p:SelfContained=true $ExtOpt ${{ env.DOTNET_AOT_ARG }} -o ${{ env.OUTPUT }}
 
+    - name: Verify SHZ Xray allowInsecure support on Windows
+      if: inputs.target == 'windows' && inputs.project == './v2rayN/v2rayN.csproj' && matrix.arch == 'x64'
+      shell: pwsh
+      run: |
+        $ErrorActionPreference = "Stop"
+        $xrayUrl = "https://github.com/shiraztest2000-lang/Xray-core/releases/latest/download/Xray-windows-64.zip"
+        New-Item -ItemType Directory -Force -Path "tmp/shz-xray" | Out-Null
+        Invoke-WebRequest -Uri $xrayUrl -OutFile "tmp/shz-xray.zip"
+        Expand-Archive -Force "tmp/shz-xray.zip" "tmp/shz-xray"
+        $xray = Get-ChildItem "tmp/shz-xray" -Recurse -Filter "xray.exe" | Select-Object -First 1
+        if (-not $xray) { throw "The SHZ Xray release does not contain xray.exe" }
+        (& $xray.FullName version) | Write-Host
+        if ($LASTEXITCODE -ne 0) { throw "SHZ Xray executable could not start on Windows" }
+        $smokeConfig = @'
+        {
+          "log": { "loglevel": "warning" },
+          "inbounds": [],
+          "outbounds": [
+            {
+              "tag": "proxy",
+              "protocol": "vless",
+              "settings": {
+                "vnext": [
+                  {
+                    "address": "example.com",
+                    "port": 443,
+                    "users": [
+                      {
+                        "id": "00000000-0000-0000-0000-000000000000",
+                        "encryption": "none"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "streamSettings": {
+                "network": "tcp",
+                "security": "tls",
+                "tlsSettings": {
+                  "serverName": "example.com",
+                  "allowInsecure": true
+                }
+              }
+            }
+          ]
+        }
+        '@
+        $smokePath = Join-Path $PWD "tmp/allow-insecure-smoke.json"
+        [System.IO.File]::WriteAllText($smokePath, $smokeConfig, [System.Text.UTF8Encoding]::new($false))
+        & $xray.FullName run -test -c $smokePath
+        if ($LASTEXITCODE -ne 0) { throw "SHZ Xray rejected the allowInsecure configuration" }
+        Write-Host "SHZ Xray allowInsecure smoke test passed on Windows."
+
     - name: Remove Debug Symbols
       shell: bash
       run: |
