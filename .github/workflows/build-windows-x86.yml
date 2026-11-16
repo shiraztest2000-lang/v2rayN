@@ -85,24 +85,13 @@ jobs:
             -p:EnableWindowsTargeting=true `
             -o "publish/${{ matrix.flavor }}"
 
-      - name: Detect bundled core versions
+      - name: Detect bundled sing-box version
         id: detect-core
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
 
           New-Item -ItemType Directory -Force -Path "tmp/probe" | Out-Null
-
-          Invoke-WebRequest -Uri "https://github.com/2dust/v2rayN-core-bin/raw/refs/heads/master/v2rayN-windows-64/bin/xray/xray.exe" -OutFile "tmp/probe/xray.exe"
-          $xrayOutput = (& "tmp/probe/xray.exe" version) -join "`n"
-          Write-Host $xrayOutput
-
-          $xrayMatch = [regex]::Match($xrayOutput, 'Xray\s+([0-9.]+)')
-          if ($xrayMatch.Success) {
-            $xrayVer = $xrayMatch.Groups[1].Value
-          } else {
-            throw "Failed to detect Xray version"
-          }
 
           Invoke-WebRequest -Uri "https://github.com/2dust/v2rayN-core-bin/raw/refs/heads/master/v2rayN-windows-64/bin/sing_box/sing-box.exe" -OutFile "tmp/probe/sing-box.exe"
           $singOutput = (& "tmp/probe/sing-box.exe" version) -join "`n"
@@ -115,24 +104,15 @@ jobs:
             throw "Failed to detect sing-box version"
           }
 
-          Write-Host "Bundled Xray version: $xrayVer"
           Write-Host "Bundled sing-box version: $singVer"
-
-          "xray_version=$xrayVer" >> $env:GITHUB_OUTPUT
           "sing_version=$singVer" >> $env:GITHUB_OUTPUT
 
-      - name: Download x86 cores and rule assets
+      - name: Download SHZ-patched Xray, sing-box and rule assets
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = "Stop"
-
-          $headers = @{
-            Authorization = "Bearer $env:GH_TOKEN"
-            Accept = "application/vnd.github+json"
-            "X-GitHub-Api-Version" = "2022-11-28"
-          }
 
           $root = "publish/${{ matrix.flavor }}"
           $bin = Join-Path $root "bin"
@@ -142,43 +122,29 @@ jobs:
 
           New-Item -ItemType Directory -Force -Path $xrayDir, $singDir, $srssDir | Out-Null
 
-          $xrayVer = "${{ steps.detect-core.outputs.xray_version }}"
           $singVer = "${{ steps.detect-core.outputs.sing_version }}"
-
-          $xrayTag = "v$xrayVer"
           $singTag = "v$singVer"
-
-          # Prefer the exact bundled Xray version. Some core-bin builds may
-          # report a version that has no matching upstream Xray release tag.
-          $xrayRelease = $null
-          try {
-            $xrayRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/XTLS/Xray-core/releases/tags/$xrayTag" -Headers $headers
-          } catch {
-            Write-Warning "Official Xray release $xrayTag was not found; falling back to the latest official release."
-            $xrayRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/XTLS/Xray-core/releases/latest" -Headers $headers
-          }
-
-          $xrayAsset = $xrayRelease.assets | Where-Object { $_.name -eq "Xray-windows-32.zip" } | Select-Object -First 1
-          if (-not $xrayAsset) {
-            throw "Xray-windows-32.zip is missing from official Xray release $($xrayRelease.tag_name)"
-          }
-          $xrayUrl = $xrayAsset.browser_download_url
+          $xrayUrl = "https://github.com/shiraztest2000-lang/Xray-core/releases/latest/download/Xray-windows-32.zip"
           $singUrl = "https://github.com/SagerNet/sing-box/releases/download/$singTag/sing-box-$singVer-windows-386.zip"
 
-          Write-Host "Bundled Xray version: $xrayVer"
-          Write-Host "Selected official Xray release: $($xrayRelease.tag_name)"
+          Write-Host "Using SHZ-patched Xray release: $xrayUrl"
           Write-Host "Bundled sing-box version: $singVer"
-          Write-Host "Xray: $xrayUrl"
           Write-Host "sing-box: $singUrl"
 
-          New-Item -ItemType Directory -Force -Path "tmp" | Out-Null
+          New-Item -ItemType Directory -Force -Path "tmp/xray", "tmp/sing-box" | Out-Null
 
           Invoke-WebRequest -Uri $xrayUrl -OutFile "tmp/xray.zip"
           Expand-Archive -Force "tmp/xray.zip" "tmp/xray"
 
-          Get-ChildItem "tmp/xray" -Recurse -Include "*.exe","*.dll" | ForEach-Object {
-            Copy-Item $_.FullName (Join-Path $xrayDir $_.Name) -Force
+          $xrayExe = Get-ChildItem "tmp/xray" -Recurse -Filter "xray.exe" | Select-Object -First 1
+          if (-not $xrayExe) {
+            throw "The SHZ Xray release does not contain xray.exe"
           }
+          Get-ChildItem -LiteralPath $xrayExe.DirectoryName -Force | Copy-Item -Destination $xrayDir -Recurse -Force
+          if (-not (Test-Path (Join-Path $xrayDir "xray.exe"))) {
+            throw "SHZ xray.exe was not copied into the package"
+          }
+          (& (Join-Path $xrayDir "xray.exe") version) | Write-Host
 
           Invoke-WebRequest -Uri $singUrl -OutFile "tmp/sing-box.zip"
           Expand-Archive -Force "tmp/sing-box.zip" "tmp/sing-box"
