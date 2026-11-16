@@ -75,7 +75,7 @@ jobs:
         if [[ "$INPUT_TARGET" == "windows-desktop" ]]; then
           rename_suffix="-desktop${rename_suffix}"
         fi
-        final_package_file="${package_dir}${rename_suffix}.zip"
+        final_package_file="${package_file%.zip}${rename_suffix}.zip"
 
         {
           echo "build_artifact_name=${build_artifact_name}"
