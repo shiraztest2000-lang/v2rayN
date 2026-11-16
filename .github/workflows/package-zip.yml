@@ -91,14 +91,56 @@ jobs:
         name: ${{ steps.package-vars.outputs.build_artifact_name }}
         path: ${{ steps.package-vars.outputs.package_dir }}
 
-    - name: Get v2rayN-core-bin
-      run: |
-        wget -nv -O "${{ steps.package-vars.outputs.package_file }}" "https://github.com/2dust/v2rayN-core-bin/raw/refs/heads/master/v2rayN-$Target-$Arch.zip"
-
-    - name: Package zip archive
+    - name: Download and merge v2rayN core files
       shell: bash
       run: |
-        7z a -tZip "${{ steps.package-vars.outputs.package_file }}" "${{ steps.package-vars.outputs.package_dir }}" -mx1
+        set -euo pipefail
+        core_archive="core-bin.zip"
+        core_extract="core-bin-extracted"
+        core_folder="v2rayN-$Target-$Arch"
+        wget -nv -O "$core_archive" "https://github.com/2dust/v2rayN-core-bin/raw/refs/heads/master/$core_folder.zip"
+        mkdir -p "$core_extract"
+        7z x "$core_archive" "-o$core_extract" -y
+        core_root="$core_extract/$core_folder"
+        if [[ ! -d "$core_root/bin" ]]; then
+          echo "Expected core directory or bin folder is missing: $core_root/bin" >&2
+          find "$core_extract" -maxdepth 3 -type d -print
+          exit 1
+        fi
+        # Merge the contents of the legacy core folder into the branded
+        # package root. This keeps bin/ beside the application executable.
+        cp -a "$core_root/." "${{ steps.package-vars.outputs.package_dir }}/"
+        rm -rf "$core_archive" "$core_extract"
+
+    - name: Package and validate zip archive layout
+      shell: bash
+      env:
+        PACKAGE_DIR: ${{ steps.package-vars.outputs.package_dir }}
+        PACKAGE_FILE: ${{ steps.package-vars.outputs.package_file }}
+      run: |
+        set -euo pipefail
+        7z a -tZip "$PACKAGE_FILE" "$PACKAGE_DIR" -mx1
+        python - "$PACKAGE_FILE" "$PACKAGE_DIR" <<'PY'
+        import re
+        import sys
+        import zipfile
+
+        archive_path, package_dir = sys.argv[1:]
+        prefix = package_dir.rstrip("/") + "/"
+        with zipfile.ZipFile(archive_path) as archive:
+            names = [name for name in archive.namelist() if name and not name.endswith("/")]
+        if not names:
+            raise SystemExit("Package archive is empty.")
+        outside = [name for name in names if not name.startswith(prefix)]
+        if outside:
+            raise SystemExit("Unexpected top-level content outside branded folder: " + ", ".join(outside[:10]))
+        if not any(name.startswith(prefix + "bin/") for name in names):
+            raise SystemExit("Expected bin/ directly inside the branded package folder.")
+        legacy = [name for name in names if re.search(r"(^|/)v2rayN-windows-(64|86)/", name)]
+        if legacy:
+            raise SystemExit("Legacy wrapper folder found in ZIP: " + ", ".join(legacy[:10]))
+        print(f"Validated {len(names)} files under {package_dir}/ with bin/ at package root.")
+        PY
 
     - name: Rename package archive
       if: steps.package-vars.outputs.rename_suffix != ''
