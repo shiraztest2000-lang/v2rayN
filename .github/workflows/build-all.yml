@@ -47,7 +47,7 @@ jobs:
 
       - name: Delete workflow run records created by the accidental tag loop
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
         shell: bash
         run: |
