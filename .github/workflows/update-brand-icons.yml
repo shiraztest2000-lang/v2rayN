@@ -1,4 +1,5 @@
 name: Update SHZ v2rayN brand icons
+# Dedicated branding workflow; it does not invoke the release build workflows.
 
 on:
   workflow_dispatch:
