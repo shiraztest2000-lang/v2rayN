@@ -1,6 +1,7 @@
 <Project>
 
     <PropertyGroup>
+        <!-- Keep the last valid release as the seed; the workflow increments after removing accidental loop releases. -->
         <Version>7.25.6.008</Version>
     </PropertyGroup>
 
