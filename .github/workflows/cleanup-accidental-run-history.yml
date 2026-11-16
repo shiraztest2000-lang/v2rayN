@@ -1,0 +1,35 @@
+name: One-time cleanup of accidental release-loop run history
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/cleanup-accidental-run-history.yml'
+
+permissions:
+  actions: write
+
+jobs:
+  cleanup:
+    name: Delete workflow runs from the accidental tag loop
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove old tag-triggered workflow runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_ids="$(gh run list --repo "$REPOSITORY" --limit 1000 --json databaseId,headBranch \
+            --jq '.[] | select(.headBranch | test("^7\\.25\\.6\\.(009|01[0-9]|020)$")) | .databaseId')"
+          if [[ -z "$run_ids" ]]; then
+            echo "No accidental tag-triggered workflow runs remain."
+            exit 0
+          fi
+          while IFS= read -r run_id; do
+            [[ -n "$run_id" ]] || continue
+            echo "Deleting accidental workflow run $run_id"
+            gh run delete "$run_id" --repo "$REPOSITORY" --yes
+          done <<< "$run_ids"
