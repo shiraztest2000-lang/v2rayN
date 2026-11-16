@@ -79,7 +79,8 @@ jobs:
           next_version="$(printf '%s.%03d' "$upstream_tag" "$next_suffix")"
 
           # Verify that the proven SHZ customizations survived the upstream merge.
-          grep -R -F --include='*.cs' 'allowInsecure' v2rayN >/dev/null || {
+          grep -R -F --include='*.cs' 'GetAllowInsecure()' v2rayN >/dev/null && \
+            grep -R -F --include='*.cs' 'allowInsecure =' v2rayN >/dev/null || {
             echo "::error::The SHZ allowInsecure source customization is missing after merge."
             exit 1
           }
