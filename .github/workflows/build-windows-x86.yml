@@ -146,6 +146,50 @@ jobs:
           }
           (& (Join-Path $xrayDir "xray.exe") version) | Write-Host
 
+          # Fail the build if the bundled SHZ core no longer accepts the
+          # legacy allowInsecure option required by SHZv2rayN users.
+          $smokeConfig = @'
+          {
+            "log": { "loglevel": "warning" },
+            "inbounds": [],
+            "outbounds": [
+              {
+                "tag": "proxy",
+                "protocol": "vless",
+                "settings": {
+                  "vnext": [
+                    {
+                      "address": "example.com",
+                      "port": 443,
+                      "users": [
+                        {
+                          "id": "00000000-0000-0000-0000-000000000000",
+                          "encryption": "none"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "streamSettings": {
+                  "network": "tcp",
+                  "security": "tls",
+                  "tlsSettings": {
+                    "serverName": "example.com",
+                    "allowInsecure": true
+                  }
+                }
+              }
+            ]
+          }
+          '@
+          $smokePath = Join-Path $PWD "tmp/allow-insecure-smoke.json"
+          [System.IO.File]::WriteAllText($smokePath, $smokeConfig, [System.Text.UTF8Encoding]::new($false))
+          & (Join-Path $xrayDir "xray.exe") run -test -c $smokePath
+          if ($LASTEXITCODE -ne 0) {
+            throw "SHZ Xray failed the allowInsecure configuration smoke test"
+          }
+          Write-Host "SHZ Xray allowInsecure smoke test passed."
+
           Invoke-WebRequest -Uri $singUrl -OutFile "tmp/sing-box.zip"
           Expand-Archive -Force "tmp/sing-box.zip" "tmp/sing-box"
 
