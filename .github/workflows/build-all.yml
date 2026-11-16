@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - 'v2rayN/Directory.Build.props'
-      - '.github/workflows/build-all.yml'
   workflow_dispatch:
     inputs:
       release_tag:
