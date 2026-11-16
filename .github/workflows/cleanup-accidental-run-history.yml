@@ -18,6 +18,7 @@ jobs:
       - name: Remove old tag-triggered workflow runs
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_PROMPT_DISABLED: "1"
           REPOSITORY: ${{ github.repository }}
         shell: bash
         run: |
@@ -31,5 +32,5 @@ jobs:
           while IFS= read -r run_id; do
             [[ -n "$run_id" ]] || continue
             echo "Deleting accidental workflow run $run_id"
-            gh run delete "$run_id" --repo "$REPOSITORY" --yes
+            gh run delete "$run_id" --repo "$REPOSITORY"
           done <<< "$run_ids"
