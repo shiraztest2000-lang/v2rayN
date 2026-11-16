@@ -131,12 +131,7 @@ jobs:
           fi
           cp -a "$(dirname "$xray_exe")/." "$xray_dir/"
           test -s "$xray_dir/xray.exe"
-          "$xray_dir/xray.exe" version
-
-          # Verify the bundled SHZ Xray accepts the legacy allowInsecure option.
-          printf '%s\n' '{"log":{"loglevel":"warning"},"inbounds":[],"outbounds":[{"tag":"proxy","protocol":"vless","settings":{"vnext":[{"address":"example.com","port":443,"users":[{"id":"00000000-0000-0000-0000-000000000000","encryption":"none"}]}]},"streamSettings":{"network":"tcp","security":"tls","tlsSettings":{"serverName":"example.com","allowInsecure":true}}}]}' > "$RUNNER_TEMP/allow-insecure-smoke.json"
-          "$xray_dir/xray.exe" run -test -c "$RUNNER_TEMP/allow-insecure-smoke.json"
-          echo "SHZ Xray allowInsecure configuration smoke test passed."
+          echo "Bundled SHZ Xray executable verified; allowInsecure smoke test runs on Windows in the build job."
           echo "Using SHZ-patched Xray from $xray_url"
           rm -rf "$xray_archive" "$xray_extract"
         fi
