@@ -18,6 +18,10 @@ on:
         required: false
         type: string
         default: '["x64","arm64"]'
+      version:
+        required: false
+        type: string
+        default: ''
 
 jobs:
   build:
@@ -119,7 +123,14 @@ jobs:
       shell: bash
       if: inputs.project == './v2rayN/v2rayN.csproj'
       working-directory: ./v2rayN
-      run: dotnet publish $Project -c Release -r $RID -p:SelfContained=true $ExtOpt -o ${{ env.OUTPUT }}
+      env:
+        RELEASE_VERSION: ${{ inputs.version }}
+      run: |
+        version_arg=()
+        if [[ -n "$RELEASE_VERSION" ]]; then
+          version_arg+=("-p:Version=$RELEASE_VERSION")
+        fi
+        dotnet publish $Project -c Release -r $RID -p:SelfContained=true $ExtOpt "${version_arg[@]}" -o ${{ env.OUTPUT }}
 
     - name: Build v2rayN Avalonia
       shell: bash
