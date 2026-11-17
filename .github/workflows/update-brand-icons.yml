@@ -8,6 +8,7 @@ on:
       - master
     paths:
       - .github/workflows/update-brand-icons.yml
+      - assets/logo.png
 
 permissions:
   contents: write
