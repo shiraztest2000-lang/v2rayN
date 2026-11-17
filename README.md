@@ -19,7 +19,7 @@
 SHZv2rayN is a customized fork of the open-source v2rayN client. It keeps the upstream application's core functionality while maintaining fork-specific changes and a Windows-only release pipeline.
 
 - **Repository:** https://github.com/shiraztest2000-lang/v2rayN
-- **Configured next release version:** `7.25.6.008` (release build pending)
+- **Configured next release version:** `7.25.6.012` (release build pending)
 - **Supported release platforms:** Windows x64 and Windows x86 (32-bit)
 - **License:** GPL-3.0
 - **First-run routing default:** Global
@@ -37,13 +37,21 @@ This repository is a fork of [2dust/v2rayN](https://github.com/2dust/v2rayN). It
 
 **Security warning:** Enabling Allow Insecure disables normal TLS certificate verification for that connection and can expose the connection to man-in-the-middle attacks. Because this disables certificate verification and increases MITM risk, turn it off whenever it is not specifically required.
 
-#### 2. Windows-only release packages
+#### 2. SHZ branding and application icons
+
+- The repository's single source logo is `assets/logo.png`; the application icon resources are generated from it.
+- The branding workflow updates only the same five application resources: WPF `v2rayN.ico` and `NotifyIcon1.ico`, Desktop `v2rayN.ico` and `NotifyIcon1.ico`, and Desktop `v2rayN.png`.
+- The logo keeps its proportions and is fitted onto a transparent square canvas; the generated ICO files include multiple standard sizes.
+- Changing `assets/logo.png` triggers icon regeneration. The generated icon-resource changes then trigger a new Windows release build.
+- README and documentation display the same source logo; no unrelated upstream artwork or screenshots are replaced by this branding workflow.
+
+#### 3. Windows-only release packages
 
 - Release workflow builds **Windows x64** and **Windows x86** packages.
-- The extracted application folder is named `SHZv2rayN-7.25.6.008`.
+- The extracted application folder is named `SHZv2rayN-7.25.6.012`.
 - Each release is checked to contain exactly these two ZIP files:
-  - `SHZv2rayN-7.25.6.008-windows-64.zip`
-  - `SHZv2rayN-7.25.6.008-windows-86.zip`
+  - `SHZv2rayN-7.25.6.012-windows-64.zip`
+  - `SHZv2rayN-7.25.6.012-windows-86.zip`
 - Linux and macOS client packages are not produced by this fork's release workflow.
 - Release version input is validated against the project version before publishing.
 
@@ -53,12 +61,12 @@ Get the latest release and its files from this fork:
 
 **[SHZv2rayN Releases](https://github.com/shiraztest2000-lang/v2rayN/releases)**
 
-Current release: **7.25.6.008**
+Current release: **7.25.6.012**
 
 | Package | Architecture | Download |
 | --- | --- | --- |
-| Windows x64 | 64-bit | [SHZv2rayN-7.25.6.008-windows-64.zip](https://github.com/shiraztest2000-lang/v2rayN/releases) |
-| Windows x86 | 32-bit | [SHZv2rayN-7.25.6.008-windows-86.zip](https://github.com/shiraztest2000-lang/v2rayN/releases) |
+| Windows x64 | 64-bit | [دانلود مستقیم نسخه ۶۴ بیتی](https://github.com/shiraztest2000-lang/v2rayN/releases/download/7.25.6.012/SHZv2rayN-7.25.6.012-windows-64.zip) |
+| Windows x86 | 32-bit | [دانلود مستقیم نسخه ۳۲ بیتی](https://github.com/shiraztest2000-lang/v2rayN/releases/download/7.25.6.012/SHZv2rayN-7.25.6.012-windows-86.zip) |
 
 Choose the package that matches your Windows architecture. Extract the ZIP file to a writable folder and run `SHZv2rayN.exe`. Back up your configuration and profiles before replacing an existing installation.
 
@@ -78,7 +86,7 @@ This project is a client application. It does **not** provide proxy servers, sub
 - **Releases:** https://github.com/shiraztest2000-lang/v2rayN/releases
 - **Actions / build status:** https://github.com/shiraztest2000-lang/v2rayN/actions
 - **Source project:** https://github.com/2dust/v2rayN
-- **Xray-core:** https://github.com/XTLS/Xray-core
+- **Xray-core:** https://github.com/shiraztest2000-lang/Xray-core
 - **sing-box:** https://github.com/SagerNet/sing-box
 - **Upstream v2rayN Wiki:** https://github.com/2dust/v2rayN/wiki
 
@@ -97,7 +105,7 @@ This is an independent community fork and is not affiliated with or endorsed by 
 **SHZv2rayN** نسخه‌ای سفارشی‌شده از پروژه متن‌باز v2rayN است. این فورک قابلیت‌های اصلی برنامه را حفظ می‌کند و در کنار آن، تغییرات اختصاصی و فرایند انتشار ویژه ویندوز را ارائه می‌دهد.
 
 - **مخزن پروژه:** https://github.com/shiraztest2000-lang/v2rayN
-- **نسخه تنظیم‌شده برای انتشار بعدی:** `7.25.6.008` (ساخت و انتشار در انتظار)
+- **نسخه تنظیم‌شده برای انتشار بعدی:** `7.25.6.012` (ساخت و انتشار در انتظار)
 - **معماری‌های قابل دریافت:** ویندوز ۶۴ بیتی و ویندوز ۳۲ بیتی
 - **مجوز:** GPL-3.0
 - **مسیریابی پیش‌فرض در اجرای نخست:** Global
@@ -115,13 +123,21 @@ This is an independent community fork and is not affiliated with or endorsed by 
 
 **هشدار امنیتی:** فعال‌کردن Allow Insecure بررسی معمول گواهی TLS را برای آن اتصال غیرفعال می‌کند و می‌تواند خطر حمله مرد میانی (MITM) را افزایش دهد. اگر به این قابلیت نیاز ندارید، آن را غیرفعال کنید؛ زیرا بررسی گواهی TLS را خاموش کرده و خطر حمله مرد میانی (MITM) را افزایش می‌دهد.
 
-#### ۲. انتشار نسخه مخصوص ویندوز
+#### ۲. هویت بصری و لوگوی SHZ
+
+- فایل `assets/logo.png` منبع واحد لوگوی این فورک است و منابع آیکون برنامه از روی آن تولید می‌شوند.
+- Workflow برندینگ فقط همان پنج خروجی قبلی را تغییر می‌دهد: دو فایل `v2rayN.ico` و `NotifyIcon1.ico` در نسخه WPF، دو فایل هم‌نام در نسخه Desktop و فایل `v2rayN.png` در Desktop.
+- نسبت تصویر لوگو حفظ می‌شود و تصویر بدون برش روی زمینه مربعی شفاف قرار می‌گیرد؛ فایل‌های ICO نیز اندازه‌های استاندارد متعددی دارند.
+- با تغییر `assets/logo.png`، تولید آیکون‌ها اجرا می‌شود و تغییر فایل‌های آیکون تولیدشده، ساخت نسخه جدید ویندوز را فعال می‌کند.
+- README و مستندات از همان لوگوی منبع استفاده می‌کنند؛ این Workflow تصاویر نامرتبط پروژه اصلی یا اسکرین‌شات‌های برنامه را جایگزین نمی‌کند.
+
+#### ۳. انتشار نسخه مخصوص ویندوز
 
 - فرایند انتشار، فایل‌های مخصوص **Windows x64** و **Windows x86** را می‌سازد.
 - در پایان فرایند انتشار بررسی می‌شود که هر Release دقیقاً شامل دو فایل ZIP زیر باشد:
-  - `SHZv2rayN-7.25.6.008-windows-64.zip`
-  - `SHZv2rayN-7.25.6.008-windows-86.zip`
-- پوشه برنامه پس از استخراج با نام `SHZv2rayN-7.25.6.008` ساخته می‌شود.
+  - `SHZv2rayN-7.25.6.012-windows-64.zip`
+  - `SHZv2rayN-7.25.6.012-windows-86.zip`
+- پوشه برنامه پس از استخراج با نام `SHZv2rayN-7.25.6.012` ساخته می‌شود.
 - در فرایند انتشار این فورک، نسخه‌های مخصوص Linux و macOS ساخته نمی‌شوند.
 - پیش از انتشار، شماره نسخه واردشده با نسخه تعریف‌شده در پروژه تطبیق داده می‌شود.
 
@@ -131,12 +147,12 @@ This is an independent community fork and is not affiliated with or endorsed by 
 
 **[صفحه دانلود و Releaseهای SHZv2rayN](https://github.com/shiraztest2000-lang/v2rayN/releases)**
 
-نسخه فعلی: **7.25.6.008**
+نسخه فعلی: **7.25.6.012**
 
 | فایل | معماری | لینک دانلود |
 | --- | --- | --- |
-| Windows x64 | ویندوز ۶۴ بیتی | [دانلود نسخه ۶۴ بیتی](https://github.com/shiraztest2000-lang/v2rayN/releases/download/7.25.6.008/SHZv2rayN-7.25.6.008-windows-64.zip) |
-| Windows x86 | ویندوز ۳۲ بیتی | [دانلود نسخه ۳۲ بیتی](https://github.com/shiraztest2000-lang/v2rayN/releases/download/7.25.6.008/SHZv2rayN-7.25.6.008-windows-86.zip) |
+| Windows x64 | ویندوز ۶۴ بیتی | [دانلود نسخه ۶۴ بیتی](https://github.com/shiraztest2000-lang/v2rayN/releases/download/7.25.6.012/SHZv2rayN-7.25.6.012-windows-64.zip) |
+| Windows x86 | ویندوز ۳۲ بیتی | [دانلود نسخه ۳۲ بیتی](https://github.com/shiraztest2000-lang/v2rayN/releases/download/7.25.6.012/SHZv2rayN-7.25.6.012-windows-86.zip) |
 
 فایلی را دانلود کنید که با معماری ویندوز شما مطابقت دارد. فایل ZIP را در یک پوشه قابل‌نوشتن استخراج و سپس فایل `SHZv2rayN.exe` را اجرا کنید. پیش از جایگزین‌کردن نسخه قبلی، از تنظیمات و پروفایل‌های خود نسخه پشتیبان تهیه کنید.
 
