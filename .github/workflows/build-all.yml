@@ -102,7 +102,6 @@ jobs:
               --target "$TARGET_SHA" \
               --title "SHZv2rayN $RELEASE_TAG" \
               --notes "Windows x64 and x86 release." \
-              --prerelease
           fi
 
   windows-x64:
