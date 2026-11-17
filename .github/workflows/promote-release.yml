@@ -1,0 +1,29 @@
+name: Promote existing release to stable
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Existing release tag to mark as stable (for example 7.25.6.014)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    name: Mark existing release as stable
+    runs-on: ubuntu-latest
+    steps:
+      - name: Promote release
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release view "$RELEASE_TAG" --repo "$REPOSITORY" >/dev/null
+          gh release edit "$RELEASE_TAG" --repo "$REPOSITORY" --prerelease=false
+          echo "Release $RELEASE_TAG is now marked as stable."
