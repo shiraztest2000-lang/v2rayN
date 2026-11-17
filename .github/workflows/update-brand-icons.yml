@@ -93,3 +93,17 @@ jobs:
           }
           git commit -m "Replace application branding icons with SHZ logo"
           git push origin HEAD:master
+
+      - name: Dispatch Windows x64 and x86 release build
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${GH_TOKEN:-}" ]]; then
+            echo "RELEASE_TOKEN is not configured; cannot trigger the release workflow." >&2
+            exit 1
+          fi
+          gh workflow run build-all.yml --repo "$REPOSITORY" --ref master --field release_tag=auto
+          echo "Dispatched Windows release workflow with automatic version numbering."
