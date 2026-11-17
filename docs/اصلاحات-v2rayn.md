@@ -31,6 +31,18 @@
      `https://github.com/shiraztest2000-lang/Xray-core`
    - این تغییر برای جلوگیری از بازگشت خطای حذف `allowInsecure` ضروری است.
 
+## هویت بصری و لوگوی SHZ
+
+فایل `assets/logo.png` منبع واحد لوگوی فورک است. Workflow با نام `Update SHZ v2rayN brand icons` این فایل را به پنج منبع تصویری قبلی برنامه تبدیل می‌کند:
+
+1. `v2rayN/v2rayN/Resources/v2rayN.ico`
+2. `v2rayN/v2rayN/Resources/NotifyIcon1.ico`
+3. `v2rayN/v2rayN.Desktop/Assets/v2rayN.ico`
+4. `v2rayN/v2rayN.Desktop/Assets/NotifyIcon1.ico`
+5. `v2rayN/v2rayN.Desktop/v2rayN.png`
+
+نسبت تصویر حفظ و لوگو بدون برش در بوم شفاف مربعی قرار داده می‌شود. تغییر فایل منبع، Workflow برندینگ را اجرا می‌کند؛ commit فایل‌های تولیدشده نیز Workflow ساخت Release ویندوز را فعال می‌کند. دامنه این تغییر محدود به همین پنج خروجی است و README، تصاویر تبلیغاتی، اسکرین‌شات‌ها یا سایر تصاویر upstream به‌صورت خودکار بازنویسی نمی‌شوند.
+
 ## موارد نامعتبر یا موقت که در مجموعه نهایی نگه‌داری نمی‌شوند
 
 - اجرای فایل اجرایی Windows یعنی `xray.exe` روی runner لینوکس؛ این روش با خطای `Exec format error` مواجه شد. آزمون به runner ویندوز منتقل شده است.
