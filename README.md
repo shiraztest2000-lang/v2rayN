@@ -63,17 +63,7 @@ Choose the package that matches your Windows architecture. Extract the ZIP file 
 
 This project is a client application. It does **not** provide proxy servers, subscriptions, accounts, or connection credentials. You must provide your own.
 
-### Documentation and links
 
-- **This fork:** https://github.com/shiraztest2000-lang/v2rayN
-- **Releases:** https://github.com/shiraztest2000-lang/v2rayN/releases
-- **Actions / build status:** https://github.com/shiraztest2000-lang/v2rayN/actions
-- **Source project:** https://github.com/2dust/v2rayN
-- **Xray-core:** https://github.com/shiraztest2000-lang/Xray-core
-- **sing-box:** https://github.com/SagerNet/sing-box
-- **Upstream v2rayN Wiki:** https://github.com/2dust/v2rayN/wiki
-
-The upstream Wiki describes the original v2rayN project. Fork-specific release behavior and changes are documented here and in this repository's release notes.
 
 ### Disclaimer
 
@@ -135,16 +125,6 @@ ShirazTipsy
 ۵. یک پروفایل را انتخاب و از طریق System Proxy یا سایر حالت‌های پشتیبانی‌شده برنامه متصل شوید.
 
 این نرم‌افزار صرفاً یک **کلاینت** است و هیچ سرور پروکسی، اشتراک، حساب کاربری یا اطلاعات اتصال آماده‌ای ارائه نمی‌کند. تهیه اطلاعات اتصال بر عهده کاربر است.
-
-### مستندات و لینک‌های رسمی
-
-- **مخزن همین فورک:** https://github.com/shiraztest2000-lang/v2rayN
-- **دانلود نسخه‌ها:** https://github.com/shiraztest2000-lang/v2rayN/releases
-- **وضعیت ساخت و Workflowها:** https://github.com/shiraztest2000-lang/v2rayN/actions
-- **پروژه اصلی:** https://github.com/2dust/v2rayN
-- **مخزن Xray-core:** https://github.com/XTLS/Xray-core
-- **مخزن sing-box:** https://github.com/SagerNet/sing-box
-- **ویکی پروژه اصلی v2rayN:** https://github.com/2dust/v2rayN/wiki
 
 ویکی پروژه اصلی، راهنمای نسخه upstream است. تغییرات اختصاصی و روش انتشار این فورک در همین README و توضیحات Releaseهای این مخزن درج می‌شود.
 @ShirazTipsy
