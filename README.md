@@ -37,23 +37,6 @@ This repository is a fork of [2dust/v2rayN](https://github.com/2dust/v2rayN). It
 
 **Security warning:** Enabling Allow Insecure disables normal TLS certificate verification for that connection and can expose the connection to man-in-the-middle attacks. Because this disables certificate verification and increases MITM risk, turn it off whenever it is not specifically required.
 
-#### 2. SHZ branding and application icons
-
-- The repository's single source logo is `assets/logo.png`; the application icon resources are generated from it.
-- The branding workflow updates only the same five application resources: WPF `v2rayN.ico` and `NotifyIcon1.ico`, Desktop `v2rayN.ico` and `NotifyIcon1.ico`, and Desktop `v2rayN.png`.
-- The logo keeps its proportions and is fitted onto a transparent square canvas; the generated ICO files include multiple standard sizes.
-- Changing `assets/logo.png` triggers icon regeneration. The generated icon-resource changes then trigger a new Windows release build.
-- README and documentation display the same source logo; no unrelated upstream artwork or screenshots are replaced by this branding workflow.
-
-#### 3. Windows-only release packages
-
-- Release workflow builds **Windows x64** and **Windows x86** packages.
-- The extracted application folder is named `SHZv2rayN-7.25.6.012`.
-- Each release is checked to contain exactly these two ZIP files:
-  - `SHZv2rayN-7.25.6.012-windows-64.zip`
-  - `SHZv2rayN-7.25.6.012-windows-86.zip`
-- Linux and macOS client packages are not produced by this fork's release workflow.
-- Release version input is validated against the project version before publishing.
 
 ### Download
 
@@ -95,7 +78,7 @@ The upstream Wiki describes the original v2rayN project. Fork-specific release b
 ### Disclaimer
 
 This is an independent community fork and is not affiliated with or endorsed by the upstream v2rayN maintainers. Product names and trademarks belong to their respective owners. Use the software and any security-sensitive options at your own risk.
-
+ShirazTipsy
 ---
 
 ## فارسی
@@ -122,24 +105,7 @@ This is an independent community fork and is not affiliated with or endorsed by 
 - این تغییر اختصاصی برای پیکربندی‌های **Xray** است و رفتار sing-box را تغییر نمی‌دهد.
 
 **هشدار امنیتی:** فعال‌کردن Allow Insecure بررسی معمول گواهی TLS را برای آن اتصال غیرفعال می‌کند و می‌تواند خطر حمله مرد میانی (MITM) را افزایش دهد. اگر به این قابلیت نیاز ندارید، آن را غیرفعال کنید؛ زیرا بررسی گواهی TLS را خاموش کرده و خطر حمله مرد میانی (MITM) را افزایش می‌دهد.
-
-#### ۲. هویت بصری و لوگوی SHZ
-
-- فایل `assets/logo.png` منبع واحد لوگوی این فورک است و منابع آیکون برنامه از روی آن تولید می‌شوند.
-- Workflow برندینگ فقط همان پنج خروجی قبلی را تغییر می‌دهد: دو فایل `v2rayN.ico` و `NotifyIcon1.ico` در نسخه WPF، دو فایل هم‌نام در نسخه Desktop و فایل `v2rayN.png` در Desktop.
-- نسبت تصویر لوگو حفظ می‌شود و تصویر بدون برش روی زمینه مربعی شفاف قرار می‌گیرد؛ فایل‌های ICO نیز اندازه‌های استاندارد متعددی دارند.
-- با تغییر `assets/logo.png`، تولید آیکون‌ها اجرا می‌شود و تغییر فایل‌های آیکون تولیدشده، ساخت نسخه جدید ویندوز را فعال می‌کند.
-- README و مستندات از همان لوگوی منبع استفاده می‌کنند؛ این Workflow تصاویر نامرتبط پروژه اصلی یا اسکرین‌شات‌های برنامه را جایگزین نمی‌کند.
-
-#### ۳. انتشار نسخه مخصوص ویندوز
-
-- فرایند انتشار، فایل‌های مخصوص **Windows x64** و **Windows x86** را می‌سازد.
-- در پایان فرایند انتشار بررسی می‌شود که هر Release دقیقاً شامل دو فایل ZIP زیر باشد:
-  - `SHZv2rayN-7.25.6.012-windows-64.zip`
-  - `SHZv2rayN-7.25.6.012-windows-86.zip`
-- پوشه برنامه پس از استخراج با نام `SHZv2rayN-7.25.6.012` ساخته می‌شود.
-- در فرایند انتشار این فورک، نسخه‌های مخصوص Linux و macOS ساخته نمی‌شوند.
-- پیش از انتشار، شماره نسخه واردشده با نسخه تعریف‌شده در پروژه تطبیق داده می‌شود.
+.
 
 ### دانلود
 
@@ -181,7 +147,7 @@ This is an independent community fork and is not affiliated with or endorsed by 
 - **ویکی پروژه اصلی v2rayN:** https://github.com/2dust/v2rayN/wiki
 
 ویکی پروژه اصلی، راهنمای نسخه upstream است. تغییرات اختصاصی و روش انتشار این فورک در همین README و توضیحات Releaseهای این مخزن درج می‌شود.
-
+@ShirazTipsy
 ### سلب مسئولیت
 
 این پروژه یک فورک مستقل و جامعه‌محور است و وابستگی یا تأیید رسمی از سوی توسعه‌دهندگان اصلی v2rayN ندارد. نام‌ها و علائم تجاری متعلق به صاحبان مربوطه هستند. استفاده از نرم‌افزار و گزینه‌های حساس امنیتی بر عهده کاربر است.
