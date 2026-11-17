@@ -6,6 +6,11 @@ on:
       - master
     paths:
       - 'v2rayN/Directory.Build.props'
+      - 'v2rayN/v2rayN/Resources/v2rayN.ico'
+      - 'v2rayN/v2rayN/Resources/NotifyIcon1.ico'
+      - 'v2rayN/v2rayN.Desktop/Assets/v2rayN.ico'
+      - 'v2rayN/v2rayN.Desktop/Assets/NotifyIcon1.ico'
+      - 'v2rayN/v2rayN.Desktop/v2rayN.png'
   workflow_dispatch:
     inputs:
       release_tag:
